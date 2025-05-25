@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Data - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <!-- Tidak ada @media print di sini, karena cetak ditangani halaman terpisah -->
+</head>
+<body>
+    <header class="main-header">
+        <h1>Aplikasi Guru</h1>
+        <p id="welcomeMessage">Selamat Datang!</p>
+    </header>
+
+    <nav class="desktop-nav">
+        <ul id="mainNavDesktop">
+            <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+            <li><a href="attendance.html"><i class="fas fa-user-check"></i> Presensi</a></li>
+            <li><a href="journal.html"><i class="fas fa-book-open"></i> Jurnal</a></li>
+            <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+            <li><a href="reports.html" class="active"><i class="fas fa-chart-line"></i> Rekap</a></li>
+            <li><a href="#" id="logoutButtonDesktop"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        <section id="reportsPage" class="page active">
+            <h2><i class="fas fa-chart-line icon-title"></i> Rekap Data</h2>
+
+            <!-- Rekap Presensi -->
+            <div class="content-card" id="rekapPresensiSection">
+                <h3><i class="fas fa-calendar-check"></i> Rekap Presensi Siswa</h3>
+                <form id="formFilterRekapPresensi" class="mb-2">
+                    <div class="form-group">
+                        <label for="rekapPresensiKelas">Pilih Kelas:</label>
+                        <select id="rekapPresensiKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapPresensiMapel">Pilih Mata Pelajaran:</label>
+                        <select id="rekapPresensiMapel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapPresensiStartDate">Tanggal Mulai:</label>
+                        <input type="date" id="rekapPresensiStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapPresensiEndDate">Tanggal Selesai:</label>
+                        <input type="date" id="rekapPresensiEndDate" required>
+                    </div>
+                    <button type="button" id="btnTampilkanRekapPresensi" class="action-btn"><i class="fas fa-search"></i> Tampilkan Rekap</button>
+                </form>
+                <div class="table-responsive">
+                    <table id="tabelRekapPresensi">
+                        <thead><tr><th>Nama Siswa</th><th>Hadir (H)</th><th>Sakit (S)</th><th>Izin (I)</th><th>Alfa (A)</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnCetakRekapPresensi" class="btn mt-2 hidden"><i class="fas fa-print"></i> Cetak Rekap Presensi</button>
+                <p id="rekapPresensiMessage" class="message-feedback hidden"></p>
+            </div>
+
+            <!-- Rekap Jurnal -->
+            <div class="content-card mt-2" id="rekapJurnalSection">
+                <h3><i class="fas fa-file-alt"></i> Rekap Jurnal Mengajar</h3>
+                <form id="formFilterRekapJurnal" class="mb-2">
+                    <div class="form-group">
+                        <label for="rekapJurnalKelas">Pilih Kelas:</label>
+                        <select id="rekapJurnalKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapJurnalMapel">Pilih Mata Pelajaran:</label>
+                        <select id="rekapJurnalMapel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapJurnalStartDate">Tanggal Mulai:</label>
+                        <input type="date" id="rekapJurnalStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapJurnalEndDate">Tanggal Selesai:</label>
+                        <input type="date" id="rekapJurnalEndDate" required>
+                    </div>
+                    <button type="button" id="btnTampilkanRekapJurnal" class="action-btn"><i class="fas fa-search"></i> Tampilkan Rekap</button>
+                </form>
+                <div class="table-responsive">
+                    <table id="tabelRekapJurnal">
+                        <thead><tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Tujuan Pembelajaran</th><th>Materi Pokok</th><th>Refleksi</th><th>Tindak Lanjut</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnCetakRekapJurnal" class="btn mt-2 hidden"><i class="fas fa-print"></i> Cetak Rekap Jurnal</button>
+                <p id="rekapJurnalMessage" class="message-feedback hidden"></p>
+            </div>
+
+            <!-- Rekap Nilai -->
+            <div class="content-card mt-2" id="rekapNilaiSection">
+                <h3><i class="fas fa-award"></i> Rekap Nilai Siswa</h3>
+                <form id="formFilterRekapNilai" class="mb-2">
+                    <div class="form-group">
+                        <label for="rekapNilaiKelas">Pilih Kelas:</label>
+                        <select id="rekapNilaiKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rekapNilaiMapel">Pilih Mata Pelajaran:</label>
+                        <select id="rekapNilaiMapel" required></select>
+                    </div>
+                    <button type="button" id="btnTampilkanRekapNilai" class="action-btn"><i class="fas fa-search"></i> Tampilkan Rekap</button>
+                </form>
+                <div class="table-responsive">
+                    <table id="tabelRekapNilai">
+                        <thead><!-- Header dinamis akan diisi JavaScript --></thead>
+                        <tbody><!-- Data nilai akan diisi JavaScript --></tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnCetakRekapNilai" class="btn mt-2 hidden"><i class="fas fa-print"></i> Cetak Rekap Nilai</button>
+                <p id="rekapNilaiMessage" class="message-feedback hidden"></p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigasi Mobile & Overlay -->
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="attendance.html" class="nav-item" data-page="attendance"><i class="fas fa-user-check"></i><span>Presensi</span></a>
+        <a href="journal.html" class="nav-item" data-page="journal"><i class="fas fa-book-open"></i><span>Jurnal</span></a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i><span>Rekap</span></a>
+        <a href="#" id="mobileMenuTrigger" class="nav-item"><i class="fas fa-bars"></i><span>Menu</span></a>
+    </nav>
+    <div class="mobile-menu-overlay hidden" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <button id="closeMobileMenu" class="close-menu-btn"><i class="fas fa-times"></i></button>
+            <h3>Menu Lainnya</h3>
+            <ul>
+                <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+                <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+                <li><a href="#" id="logoutButtonMobile"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        // Jika populateTableDynamicHeaders TIDAK ADA di script.js global, definisikan di sini.
+        // Jika SUDAH ADA di script.js, Anda BISA MENGHAPUS definisi fungsi ini dari sini.
+        /**
+         * Mengisi tabel dengan data dan header dinamis.
+         * @param {string} tableId ID elemen tabel.
+         * @param {Array<string>} headersArray Array string untuk header kolom (yang ramah pengguna).
+         * @param {Array<Object>} dataArray Array objek data.
+         * @param {Array<string>} dataKeysArray Array string key asli data, dalam urutan yang sama dengan headersArray.
+         */
+        function populateTableDynamicHeaders(tableId, headersArray, dataArray, dataKeysArray) {
+            const tableElement = document.getElementById(tableId);
+            if (!tableElement) {
+                console.error("Elemen tabel tidak ditemukan:", tableId);
+                return;
+            }
+            const tableHead = tableElement.querySelector("thead");
+            const tableBody = tableElement.querySelector("tbody");
+
+            if (!tableHead || !tableBody) {
+                console.error("Elemen thead atau tbody tidak ditemukan di tabel:", tableId);
+                return;
+            }
+
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (headersArray && headersArray.length > 0) {
+                const headerRow = tableHead.insertRow();
+                headersArray.forEach(headerText => {
+                    const th = document.createElement("th");
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+            } else {
+                const headerRow = tableHead.insertRow();
+                const th = document.createElement("th");
+                th.textContent = "Header tidak tersedia";
+                headerRow.appendChild(th);
+            }
+
+            // Gunakan dataKeysArray untuk mengambil data jika tersedia, jika tidak, gunakan headersArray
+            const keysToIterate = (dataKeysArray && dataKeysArray.length === headersArray.length) ? dataKeysArray : headersArray;
+
+            if (dataArray && dataArray.length > 0 && keysToIterate && keysToIterate.length > 0) {
+                dataArray.forEach(rowData => {
+                    const row = tableBody.insertRow();
+                    keysToIterate.forEach(dataKey => { 
+                        const cell = row.insertCell();
+                        cell.textContent = rowData[dataKey] !== undefined ? rowData[dataKey] : '-';
+                        if (dataKey.toLowerCase().includes("rata-rata") || typeof rowData[dataKey] === 'number') {
+                            cell.style.textAlign = 'center';
+                        }
+                    });
+                });
+            } else if (dataArray && dataArray.length > 0 && (!keysToIterate || keysToIterate.length === 0)) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.textContent = "Data ada, tetapi kunci data/header tidak terdefinisi dengan benar.";
+            } else {
+                const colCount = headersArray && headersArray.length > 0 ? headersArray.length : 1;
+                tableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; padding: 1rem 0;">Tidak ada data untuk ditampilkan.</td></tr>`;
+            }
+        }
+        // --- Akhir definisi populateTableDynamicHeaders ---
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginAndSetup();
+            setupMobileMenu();
+            populateDropdowns([
+                'rekapPresensiKelas', 'rekapPresensiMapel',
+                'rekapJurnalKelas', 'rekapJurnalMapel',
+                'rekapNilaiKelas', 'rekapNilaiMapel'
+            ]);
+
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const presensiStartDateEl = document.getElementById('rekapPresensiStartDate');
+            if (presensiStartDateEl) presensiStartDateEl.valueAsDate = firstDayOfMonth;
+            const presensiEndDateEl = document.getElementById('rekapPresensiEndDate');
+            if (presensiEndDateEl) presensiEndDateEl.valueAsDate = today;
+            const jurnalStartDateEl = document.getElementById('rekapJurnalStartDate');
+            if (jurnalStartDateEl) jurnalStartDateEl.valueAsDate = firstDayOfMonth;
+            const jurnalEndDateEl = document.getElementById('rekapJurnalEndDate');
+            if (jurnalEndDateEl) jurnalEndDateEl.valueAsDate = today;
+
+            let masterKelasDataLaporan = [];
+            let masterMapelDataLaporan = [];
+
+            async function loadMasterDataForLaporan() {
+                 if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL" || (masterKelasDataLaporan.length > 0 && masterMapelDataLaporan.length > 0)) return;
+                const params = new URLSearchParams({ action: 'getMasterData' });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    if (result.success) {
+                        masterKelasDataLaporan = result.kelas || [];
+                        masterMapelDataLaporan = result.mapel || [];
+                    }
+                } catch (error) { console.error("Gagal memuat master data untuk laporan:", error); }
+            }
+            
+            function getNamaByIdL(id, dataArray, idField = 'ID', nameField = 'Nama Kelas') {
+                if (!id || !dataArray || dataArray.length === 0) return id || 'N/A';
+                const item = dataArray.find(d => String(d[idField]).trim() === String(id).trim());
+                return item ? String(item[nameField]).trim() : id;
+            }
+
+            function bukaHalamanCetak(urlHalamanCetak, dataKey, data, infoFilterKey, infoFilter, judulKey, judul, headersKey, headersDataDisplay, dataKeysOrderObj) {
+                localStorage.setItem(dataKey, JSON.stringify(data));
+                localStorage.setItem(infoFilterKey, JSON.stringify(infoFilter));
+                localStorage.setItem(judulKey, judul);
+                if (headersKey && headersDataDisplay) {
+                    localStorage.setItem(headersKey, JSON.stringify(headersDataDisplay));
+                }
+                if (dataKeysOrderObj && dataKeysOrderObj.keyName && dataKeysOrderObj.keys) {
+                    localStorage.setItem(dataKeysOrderObj.keyName, JSON.stringify(dataKeysOrderObj.keys));
+                }
+                const printWindow = window.open(urlHalamanCetak, '_blank');
+                if (!printWindow) {
+                    alert("Gagal membuka halaman cetak. Pastikan pop-up tidak diblokir oleh browser Anda.");
+                }
+            }
+
+            async function handleRekapUmum(buttonId, formId, tableId, messageElementId, actionName, requiredParams, dataKeysStatic, cetakInfo) {
+                const messageEl = document.getElementById(messageElementId);
+                const btnTampilkan = document.getElementById(buttonId);
+                let currentRekapDataForPrint = { headersDisplay: [], dataKeys: [], data: [] };
+
+                if (!btnTampilkan) { console.error("Tombol tampilkan rekap tidak ditemukan:", buttonId); return; }
+                
+                const btnCetak = cetakInfo && cetakInfo.tombolCetakId ? document.getElementById(cetakInfo.tombolCetakId) : null;
+                if (btnCetak) btnCetak.classList.add('hidden');
+
+                btnTampilkan.addEventListener('click', async () => {
+                    if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                        displayFeedbackMessage(messageEl, 'URL Script belum dikonfigurasi.', false); return;
+                    }
+                    showLoading();
+                    messageEl.classList.remove('show'); messageEl.classList.add('hidden');
+                    currentRekapDataForPrint = { headersDisplay: [], dataKeys: [], data: [] };
+                    if (btnCetak) btnCetak.classList.add('hidden');
+
+                    const params = new URLSearchParams({ action: actionName });
+                    let allParamsValid = true;
+                    const filterValues = {}; 
+
+                    requiredParams.forEach(param => {
+                        const inputElement = document.getElementById(param.id);
+                        if (!inputElement) { console.error("Elemen filter tidak ditemukan:", param.id); allParamsValid = false; return; }
+                        const value = inputElement.value;
+                        if (!value && inputElement.hasAttribute('required')) allParamsValid = false;
+                        params.append(param.key, value);
+                        filterValues[param.key] = value; 
+                        if (param.id.includes('Kelas') && inputElement.tagName === 'SELECT') filterValues.namaKelas = inputElement.options[inputElement.selectedIndex]?.text || value;
+                        if (param.id.includes('Mapel') && inputElement.tagName === 'SELECT') filterValues.namaMapel = inputElement.options[inputElement.selectedIndex]?.text || value;
+                    });
+
+                    if (!allParamsValid) {
+                        displayFeedbackMessage(messageEl, "Harap isi semua filter yang diperlukan.", false);
+                        hideLoading();
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                        const result = await response.json();
+                        if (result.success) {
+                            if (actionName === 'rekapNilai') {
+                                currentRekapDataForPrint.headersDisplay = result.headers || [];
+                                currentRekapDataForPrint.dataKeys = result.headers || []; // Untuk rekapNilai, header = dataKeys
+                                currentRekapDataForPrint.data = result.data || [];
+                                // Gunakan populateTableDynamicHeaders dengan dataKeys juga
+                                populateTableDynamicHeaders(tableId, currentRekapDataForPrint.headersDisplay, currentRekapDataForPrint.data, currentRekapDataForPrint.dataKeys);
+                            } else {
+                                currentRekapDataForPrint.dataKeys = dataKeysStatic; 
+                                currentRekapDataForPrint.headersDisplay = cetakInfo.headersDisplay || dataKeysStatic.map(key => key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')); 
+                                currentRekapDataForPrint.data = result.data || [];
+                                // Gunakan populateTable (dari script.js) yang menerima dataKeys
+                                populateTable(tableId, currentRekapDataForPrint.data, currentRekapDataForPrint.dataKeys); 
+                            }
+                            
+                            if (currentRekapDataForPrint.data.length === 0) {
+                                displayFeedbackMessage(messageEl, result.message || "Tidak ada data rekap untuk filter yang dipilih.", true, 5000);
+                            } else {
+                                messageEl.classList.remove('show'); messageEl.classList.add('hidden');
+                                if (btnCetak) btnCetak.classList.remove('hidden');
+                            }
+                        } else {
+                            displayFeedbackMessage(messageEl, result.message || `Gagal memuat rekap ${actionName}.`, false);
+                            if (actionName === 'rekapNilai') populateTableDynamicHeaders(tableId, [], [], []);
+                            else populateTable(tableId, [], dataKeysStatic || []);
+                        }
+                    } catch (error) {
+                        displayFeedbackMessage(messageEl, "Error: " + error.message, false);
+                        if (actionName === 'rekapNilai') populateTableDynamicHeaders(tableId, [], [], []);
+                        else populateTable(tableId, [], dataKeysStatic || []);
+                    } finally {
+                        hideLoading();
+                    }
+                });
+
+                if (btnCetak) {
+                    btnCetak.addEventListener('click', () => {
+                        if (!currentRekapDataForPrint.data || currentRekapDataForPrint.data.length === 0) {
+                            alert("Tidak ada data untuk dicetak. Silakan tampilkan rekap terlebih dahulu.");
+                            return;
+                        }
+                        const kelasEl = document.getElementById(requiredParams.find(p => p.key === 'kelasId').id);
+                        const mapelEl = document.getElementById(requiredParams.find(p => p.key === 'mapelId').id);
+                        const startDateEl = requiredParams.find(p => p.key === 'startDate') ? document.getElementById(requiredParams.find(p => p.key === 'startDate').id) : null;
+                        const endDateEl = requiredParams.find(p => p.key === 'endDate') ? document.getElementById(requiredParams.find(p => p.key === 'endDate').id) : null;
+
+                        const infoFilterUntukCetak = {
+                            kelas: kelasEl ? (kelasEl.options[kelasEl.selectedIndex]?.text || kelasEl.value) : 'N/A',
+                            mapel: mapelEl ? (mapelEl.options[mapelEl.selectedIndex]?.text || mapelEl.value) : 'N/A',
+                            startDate: startDateEl ? startDateEl.value : null,
+                            endDate: endDateEl ? endDateEl.value : null
+                        };
+                        
+                        bukaHalamanCetak(
+                            cetakInfo.urlHalamanCetak, 
+                            cetakInfo.dataKey, 
+                            currentRekapDataForPrint.data, 
+                            cetakInfo.infoFilterKey,
+                            infoFilterUntukCetak,
+                            cetakInfo.judulKey,
+                            cetakInfo.judulDokumen,
+                            cetakInfo.headersKey, 
+                            currentRekapDataForPrint.headersDisplay, 
+                            { keyName: cetakInfo.dataKeysOrderKey, keys: currentRekapDataForPrint.dataKeys }
+                        );
+                    });
+                }
+            }
+            
+            loadMasterDataForLaporan().then(() => {
+                handleRekapUmum('btnTampilkanRekapPresensi', 'formFilterRekapPresensi', 'tabelRekapPresensi', 'rekapPresensiMessage', 'rekapPresensi',
+                    [
+                        {id: 'rekapPresensiKelas', key: 'kelasId'}, {id: 'rekapPresensiMapel', key: 'mapelId'},
+                        {id: 'rekapPresensiStartDate', key: 'startDate'}, {id: 'rekapPresensiEndDate', key: 'endDate'}
+                    ],
+                    ['namaSiswa', 'totalH', 'totalS', 'totalI', 'totalA'], // dataKeysStatic
+                    { 
+                        tombolCetakId: 'btnCetakRekapPresensi', urlHalamanCetak: 'cetak-presensi.html',
+                        dataKey: 'dataCetakPresensi', infoFilterKey: 'infoFilterPresensi',
+                        judulKey: 'judulLaporanPresensi', judulDokumen: 'Rekapitulasi Presensi Siswa',
+                        headersKey: 'headersCetakPresensi', 
+                        headersDisplay: ['Nama Siswa', 'Hadir', 'Sakit', 'Izin', 'Alfa'], // Header ramah pengguna
+                        dataKeysOrderKey: 'dataKeysOrderPresensi'
+                    }
+                );
+
+                handleRekapUmum('btnTampilkanRekapJurnal', 'formFilterRekapJurnal', 'tabelRekapJurnal', 'rekapJurnalMessage', 'rekapJurnal',
+                    [
+                        {id: 'rekapJurnalKelas', key: 'kelasId'}, {id: 'rekapJurnalMapel', key: 'mapelId'},
+                        {id: 'rekapJurnalStartDate', key: 'startDate'}, {id: 'rekapJurnalEndDate', key: 'endDate'}
+                    ],
+                    ['tanggal', 'kelas', 'mapel', 'tujuan', 'materi', 'refleksi', 'tindakLanjut'], // dataKeysStatic
+                    { 
+                        tombolCetakId: 'btnCetakRekapJurnal', urlHalamanCetak: 'cetak-jurnal.html',
+                        dataKey: 'dataCetakJurnal', infoFilterKey: 'infoFilterJurnal',
+                        judulKey: 'judulLaporanJurnal', judulDokumen: 'Rekapitulasi Jurnal Mengajar',
+                        headersKey: 'headersCetakJurnal',
+                        headersDisplay: ['Tanggal', 'Kelas', 'Mapel', 'Tujuan Pembelajaran', 'Materi Pokok', 'Refleksi', 'Tindak Lanjut'], // Header ramah pengguna
+                        dataKeysOrderKey: 'dataKeysOrderJurnal'
+                    }
+                );
+
+                handleRekapUmum('btnTampilkanRekapNilai', 'formFilterRekapNilai', 'tabelRekapNilai', 'rekapNilaiMessage', 'rekapNilai',
+                    [
+                        {id: 'rekapNilaiKelas', key: 'kelasId'}, {id: 'rekapNilaiMapel', key: 'mapelId'}
+                    ],
+                    null, // dataKeysStatic (null karena dinamis dari backend)
+                    { 
+                        tombolCetakId: 'btnCetakRekapNilai', urlHalamanCetak: 'cetak-nilai.html',
+                        dataKey: 'dataCetakNilai', infoFilterKey: 'infoFilterNilai',
+                        judulKey: 'judulLaporanNilai', judulDokumen: 'Rekapitulasi Nilai Siswa',
+                        headersKey: 'headersCetakNilai', // Akan diisi dari backend
+                        // headersDisplay tidak perlu di-hardcode di sini untuk nilai
+                        dataKeysOrderKey: 'dataKeysOrderNilai' // Akan sama dengan headersDisplay dari backend
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

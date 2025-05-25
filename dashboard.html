@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <h1>Aplikasi Guru</h1>
+        <p id="welcomeMessage">Selamat Datang!</p>
+    </header>
+
+    <nav class="desktop-nav">
+        <ul id="mainNavDesktop">
+            <li><a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+            <li><a href="attendance.html"><i class="fas fa-user-check"></i> Presensi</a></li>
+            <li><a href="journal.html"><i class="fas fa-book-open"></i> Jurnal</a></li>
+            <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> Rekap</a></li>
+            <li><a href="#" id="logoutButtonDesktop"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        <section id="dashboardPage" class="page active">
+            <h2><i class="fas fa-tachometer-alt icon-title"></i> Dashboard</h2>
+            <p>Selamat datang di Aplikasi Administrasi Guru.</p>
+            <div class="summary-cards">
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="card-content">
+                        <h4>Jumlah Kelas</h4>
+                        <p id="summaryJumlahKelas">0</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                    <div class="card-content">
+                        <h4>Jumlah Siswa</h4>
+                        <p id="summaryJumlahSiswa">0</p>
+                    </div>
+                </div>
+            </div>
+            <p>Gunakan navigasi untuk mengakses fitur lainnya.</p>
+        </section>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="attendance.html" class="nav-item" data-page="attendance">
+            <i class="fas fa-user-check"></i>
+            <span>Presensi</span>
+        </a>
+        <a href="journal.html" class="nav-item" data-page="journal">
+            <i class="fas fa-book-open"></i>
+            <span>Jurnal</span>
+        </a>
+        <a href="reports.html" class="nav-item" data-page="reports">
+            <i class="fas fa-chart-bar"></i>
+            <span>Rekap</span>
+        </a>
+        <a href="#" id="mobileMenuTrigger" class="nav-item">
+            <i class="fas fa-bars"></i>
+            <span>Menu</span>
+        </a>
+    </nav>
+
+    <div class="mobile-menu-overlay hidden" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <button id="closeMobileMenu" class="close-menu-btn"><i class="fas fa-times"></i></button>
+            <h3>Menu Lainnya</h3>
+            <ul>
+                <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+                <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+                <li><a href="#" id="logoutButtonMobile"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginAndSetup();
+            setupMobileMenu();
+            loadDashboardData();
+
+            function loadDashboardData() {
+                const guruId = localStorage.getItem('guruId');
+                if (!guruId || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+
+                showLoading();
+                const params = new URLSearchParams();
+                params.append('action', 'getGuruData');
+                params.append('guruId', guruId);
+
+                fetch(SCRIPT_URL, { method: 'POST', body: params })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success && result.summary) {
+                            document.getElementById('summaryJumlahKelas').textContent = result.summary.jumlahKelas || 0;
+                            document.getElementById('summaryJumlahSiswa').textContent = result.summary.jumlahSiswa || 0;
+                        } else {
+                            console.error("Gagal memuat data dashboard:", result.message);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching dashboard data:', error))
+                    .finally(() => hideLoading());
+            }
+        });
+    </script>
+</body>
+</html>

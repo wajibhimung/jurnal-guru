@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Penilaian - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style tambahan spesifik untuk daftar penilaian (mirip jurnal) */
+        .penilaian-list-container { margin-top: 1.5rem; }
+        .penilaian-item-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border-left: 5px solid #fd7e14; /* Aksen oranye untuk penilaian */
+        }
+        .penilaian-item-card h4 { margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: #2c3e50; }
+        .penilaian-item-card p { font-size: 0.85rem; color: #546e7a; margin-bottom: 0.3rem; }
+        .penilaian-item-actions button {
+            padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.5rem; border-radius: 5px;
+        }
+        .penilaian-form-section, .nilai-siswa-section { display: none; } /* Sembunyikan form secara default */
+        .penilaian-form-section.active, .nilai-siswa-section.active { display: block; } /* Tampilkan jika active */
+
+        .input-nilai-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .input-nilai-item:last-child { border-bottom: none; }
+        .input-nilai-item .student-name { flex-grow: 1; font-size: 0.9rem; }
+        .input-nilai-item input[type="number"] {
+            width: 80px; padding: 0.5rem; text-align: center; border-radius: 4px;
+            border: 1px solid #ccc; font-size:0.9rem;
+        }
+        /* Pastikan style untuk .message-feedback, .success, .error, .hidden ada di style.css utama */
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Aplikasi Guru</h1>
+        <p id="welcomeMessage">Selamat Datang!</p>
+    </header>
+
+    <nav class="desktop-nav">
+        <ul id="mainNavDesktop">
+            <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+            <li><a href="attendance.html"><i class="fas fa-user-check"></i> Presensi</a></li>
+            <li><a href="journal.html"><i class="fas fa-book-open"></i> Jurnal</a></li>
+            <li><a href="assessment.html" class="active"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> Rekap</a></li>
+            <li><a href="#" id="logoutButtonDesktop"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        <section id="assessmentPage" class="page active">
+            <h2><i class="fas fa-graduation-cap icon-title"></i> Manajemen Penilaian</h2>
+            
+            <button type="button" id="btnTampilkanFormPenilaianBaru" class="btn mb-2"><i class="fas fa-plus"></i> Tambah Penilaian Baru</button>
+            
+            <!-- Bagian Form Info Penilaian (Awalnya Tersembunyi) -->
+            <div id="penilaianFormContainer" class="content-card penilaian-form-section mb-2">
+                <h3 id="penilaianFormTitle">Info Penilaian Baru</h3>
+                <form id="formInfoPenilaian">
+                    <input type="hidden" id="idSesiPenilaian"> 
+                    <div class="form-group">
+                        <label for="penilaianInputKelas"><i class="fas fa-chalkboard icon-input"></i> Pilih Kelas:</label>
+                        <select id="penilaianInputKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="penilaianInputMapel"><i class="fas fa-book icon-input"></i> Pilih Mata Pelajaran:</label>
+                        <select id="penilaianInputMapel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="penilaianInputJudul"><i class="fas fa-clipboard-list icon-input"></i> Judul Penilaian:</label>
+                        <input type="text" id="penilaianInputJudul" placeholder="Contoh: Ulangan Harian Bab 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="penilaianInputTanggal"><i class="fas fa-calendar-alt icon-input"></i> Tanggal Penilaian:</label>
+                        <input type="date" id="penilaianInputTanggal" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" id="btnLanjutInputNilai" style="flex-grow: 1;"><i class="fas fa-arrow-right"></i> Lanjut ke Input Nilai</button>
+                        <button type="button" id="btnBatalFormInfo" class="secondary" style="flex-grow: 1;"><i class="fas fa-times"></i> Batal</button>
+                    </div>
+                </form>
+                 <p id="penilaianInfoMessage" class="message-feedback hidden"></p>
+            </div>
+           
+
+            <!-- Bagian Form Input Nilai Siswa (Awalnya Tersembunyi) -->
+            <div id="nilaiSiswaContainer" class="content-card nilai-siswa-section mb-2">
+                <h3 id="nilaiSiswaTitle">Input Nilai Siswa</h3>
+                <p id="infoSesiUntukNilai" class="mb-1" style="font-size:0.85rem; color:#555;"></p>
+                <form id="formNilaiSiswa">
+                    <div id="listSiswaUntukPenilaian" class="mb-2">
+                        <p>Pilih info penilaian dan klik "Lanjut ke Input Nilai" untuk memuat siswa.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                         <button type="submit" id="btnSimpanSemuaNilai" style="flex-grow: 1;"><i class="fas fa-save"></i> Simpan Semua Nilai</button>
+                         <button type="button" id="btnKembaliKeInfoPenilaian" class="secondary" style="flex-grow: 1;"><i class="fas fa-arrow-left"></i> Kembali ke Info</button>
+                    </div>
+                </form>
+                 <p id="penilaianNilaiMessage" class="message-feedback hidden"></p>
+            </div>
+           
+
+
+            <!-- Daftar Penilaian yang Sudah Ada -->
+            <div class="content-card penilaian-list-container">
+                <h3><i class="fas fa-history"></i> Riwayat Sesi Penilaian</h3>
+                <div id="daftarSemuaPenilaian">
+                    <p>Memuat riwayat penilaian...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigasi Mobile & Overlay (Sama seperti halaman lain) -->
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="attendance.html" class="nav-item" data-page="attendance"><i class="fas fa-user-check"></i><span>Presensi</span></a>
+        <a href="journal.html" class="nav-item" data-page="journal"><i class="fas fa-book-open"></i><span>Jurnal</span></a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i><span>Rekap</span></a>
+        <a href="#" id="mobileMenuTrigger" class="nav-item"><i class="fas fa-bars"></i><span>Menu</span></a>
+    </nav>
+    <div class="mobile-menu-overlay hidden" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <button id="closeMobileMenu" class="close-menu-btn"><i class="fas fa-times"></i></button>
+            <h3>Menu Lainnya</h3>
+            <ul>
+                <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+                <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+                <li><a href="#" id="logoutButtonMobile"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginAndSetup();
+            setupMobileMenu();
+            populateDropdowns(['penilaianInputKelas', 'penilaianInputMapel']);
+            document.getElementById('penilaianInputTanggal').valueAsDate = new Date();
+
+            const penilaianInfoMessage = document.getElementById('penilaianInfoMessage');
+            const penilaianNilaiMessage = document.getElementById('penilaianNilaiMessage');
+            const daftarSemuaPenilaianContainer = document.getElementById('daftarSemuaPenilaian');
+            
+            const penilaianFormContainer = document.getElementById('penilaianFormContainer');
+            const penilaianFormTitle = document.getElementById('penilaianFormTitle');
+            const btnTampilkanFormPenilaianBaru = document.getElementById('btnTampilkanFormPenilaianBaru');
+            const btnBatalFormInfo = document.getElementById('btnBatalFormInfo');
+            const btnLanjutInputNilai = document.getElementById('btnLanjutInputNilai');
+
+            const formInfoPenilaian = document.getElementById('formInfoPenilaian');
+            const idSesiPenilaianField = document.getElementById('idSesiPenilaian');
+            const penilaianInputKelas = document.getElementById('penilaianInputKelas');
+            const penilaianInputMapel = document.getElementById('penilaianInputMapel');
+            const penilaianInputJudul = document.getElementById('penilaianInputJudul');
+            const penilaianInputTanggal = document.getElementById('penilaianInputTanggal');
+
+            const nilaiSiswaContainer = document.getElementById('nilaiSiswaContainer');
+            const nilaiSiswaTitle = document.getElementById('nilaiSiswaTitle');
+            const infoSesiUntukNilai = document.getElementById('infoSesiUntukNilai');
+            const listSiswaUntukPenilaian = document.getElementById('listSiswaUntukPenilaian');
+            const formNilaiSiswa = document.getElementById('formNilaiSiswa');
+            const btnSimpanSemuaNilai = document.getElementById('btnSimpanSemuaNilai');
+            const btnKembaliKeInfoPenilaian = document.getElementById('btnKembaliKeInfoPenilaian');
+
+            let masterKelasDataPenilaian = [];
+            let masterMapelDataPenilaian = [];
+            let currentNilaiSiswaData = [];
+
+            async function loadMasterDataForPenilaian() {
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                const params = new URLSearchParams({ action: 'getMasterData' });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    if (result.success) {
+                        masterKelasDataPenilaian = result.kelas || [];
+                        masterMapelDataPenilaian = result.mapel || [];
+                    }
+                } catch (error) { console.error("Gagal memuat master data untuk penilaian:", error); }
+            }
+            
+            function getNamaByIdP(id, dataArray, idField = 'ID', nameField = 'Nama Kelas') {
+                if (!id || !dataArray || dataArray.length === 0) return id || 'N/A';
+                const item = dataArray.find(d => String(d[idField]).trim() === String(id).trim());
+                return item ? String(item[nameField]).trim() : id;
+            }
+
+            // displayFeedbackMessage ada di script.js global
+
+            function resetAllFormsPenilaian() {
+                formInfoPenilaian.reset();
+                formNilaiSiswa.reset();
+                listSiswaUntukPenilaian.innerHTML = '<p>Pilih info penilaian dan klik "Lanjut ke Input Nilai" untuk memuat siswa.</p>';
+                idSesiPenilaianField.value = '';
+                penilaianFormTitle.textContent = 'Info Penilaian Baru';
+                penilaianInputTanggal.valueAsDate = new Date();
+                penilaianInputKelas.value = "";
+                penilaianInputMapel.value = "";
+                penilaianFormContainer.classList.remove('active');
+                nilaiSiswaContainer.classList.remove('active');
+                
+                penilaianInfoMessage.classList.remove('show', 'success', 'error');
+                penilaianInfoMessage.classList.add('hidden');
+                penilaianNilaiMessage.classList.remove('show', 'success', 'error');
+                penilaianNilaiMessage.classList.add('hidden');
+                currentNilaiSiswaData = [];
+            }
+
+            function showFormInfoPenilaian(isEdit = false, dataSesi = null) {
+                resetAllFormsPenilaian();
+                if (isEdit && dataSesi) {
+                    penilaianFormTitle.textContent = 'Edit Info Penilaian';
+                    idSesiPenilaianField.value = dataSesi.idSesiPenilaian;
+                    penilaianInputKelas.value = dataSesi.idKelas;
+                    penilaianInputMapel.value = dataSesi.idMapel;
+                    penilaianInputJudul.value = dataSesi.judulPenilaian;
+                    penilaianInputTanggal.value = dataSesi.tanggal;
+                } else {
+                    penilaianFormTitle.textContent = 'Info Penilaian Baru';
+                    penilaianInputTanggal.valueAsDate = new Date();
+                }
+                penilaianFormContainer.classList.add('active');
+                nilaiSiswaContainer.classList.remove('active');
+                penilaianFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            async function showFormNilaiSiswa() {
+                penilaianFormContainer.classList.remove('active');
+                nilaiSiswaContainer.classList.add('active');
+                nilaiSiswaTitle.textContent = `Input Nilai: ${penilaianInputJudul.value || 'Penilaian Baru'}`;
+                infoSesiUntukNilai.innerHTML = `
+                    Kelas: <strong>${getNamaByIdP(penilaianInputKelas.value, masterKelasDataPenilaian, 'ID', 'Nama Kelas')}</strong> | 
+                    Mapel: <strong>${getNamaByIdP(penilaianInputMapel.value, masterMapelDataPenilaian, 'ID', 'Nama Mata Pelajaran')}</strong> | 
+                    Tanggal: <strong>${penilaianInputTanggal.value}</strong>
+                `;
+                listSiswaUntukPenilaian.innerHTML = '<p>Memuat siswa...</p>';
+                penilaianNilaiMessage.classList.remove('show'); 
+                penilaianNilaiMessage.classList.add('hidden');
+
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    listSiswaUntukPenilaian.innerHTML = '<p style="color:red;">URL Script belum dikonfigurasi.</p>'; return;
+                }
+
+                showLoading();
+                btnLanjutInputNilai.disabled = true;
+
+                const params = new URLSearchParams({ action: 'getSiswaByKelas', idKelas: penilaianInputKelas.value });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    listSiswaUntukPenilaian.innerHTML = '';
+                    if (result.success && result.data.length > 0) {
+                        result.data.forEach(siswa => {
+                            const nilaiSebelumnyaObj = currentNilaiSiswaData.find(n => n.idSiswa === siswa.ID);
+                            const nilaiSebelumnya = nilaiSebelumnyaObj ? nilaiSebelumnyaObj.nilai : '';
+                            const itemDiv = document.createElement('div');
+                            itemDiv.classList.add('input-nilai-item');
+                            itemDiv.innerHTML = `
+                                <span class="student-name">${siswa.Nama}</span>
+                                <input type="number" data-siswa-id="${siswa.ID}" value="${nilaiSebelumnya}" placeholder="0-100" min="0" max="100" step="any">
+                            `;
+                            listSiswaUntukPenilaian.appendChild(itemDiv);
+                        });
+                    } else {
+                        listSiswaUntukPenilaian.innerHTML = '<p>Tidak ada siswa di kelas ini atau gagal memuat.</p>';
+                    }
+                } catch (error) {
+                    listSiswaUntukPenilaian.innerHTML = `<p style="color:red;">Error memuat siswa: ${error.message}</p>`;
+                } finally {
+                    hideLoading();
+                    btnLanjutInputNilai.disabled = false;
+                    nilaiSiswaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            btnTampilkanFormPenilaianBaru.addEventListener('click', () => showFormInfoPenilaian(false));
+            btnBatalFormInfo.addEventListener('click', resetAllFormsPenilaian);
+            btnKembaliKeInfoPenilaian.addEventListener('click', () => {
+                nilaiSiswaContainer.classList.remove('active');
+                penilaianFormContainer.classList.add('active');
+                penilaianNilaiMessage.classList.remove('show'); 
+                penilaianNilaiMessage.classList.add('hidden');
+                penilaianFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            btnLanjutInputNilai.addEventListener('click', async () => {
+                penilaianInfoMessage.classList.remove('show'); 
+                penilaianInfoMessage.classList.add('hidden');
+                if (!formInfoPenilaian.checkValidity()) {
+                    displayFeedbackMessage(penilaianInfoMessage, 'Harap isi semua info penilaian (Kelas, Mapel, Judul, Tanggal) terlebih dahulu.', false);
+                    formInfoPenilaian.reportValidity();
+                    return;
+                }
+                
+                currentNilaiSiswaData = []; 
+                const currentSesiId = idSesiPenilaianField.value;
+
+                if (currentSesiId) { 
+                    showLoading();
+                    const paramsDetail = new URLSearchParams({ action: 'getDetailSesiPenilaian', idSesiPenilaian: currentSesiId });
+                    try {
+                        const resDetail = await fetch(SCRIPT_URL, {method: 'POST', body: paramsDetail });
+                        const resultDetail = await resDetail.json();
+                        if (resultDetail.success && resultDetail.data) {
+                            currentNilaiSiswaData = resultDetail.data.nilaiSiswa || [];
+                        } else {
+                            displayFeedbackMessage(penilaianInfoMessage, resultDetail.message || 'Gagal memuat detail nilai lama.', false);
+                        }
+                    } catch (err) {
+                        displayFeedbackMessage(penilaianInfoMessage, 'Error memuat detail nilai lama: ' + err.message, false);
+                    } finally {
+                        hideLoading();
+                    }
+                }
+                await showFormNilaiSiswa();
+            });
+            
+            async function loadAllSesiPenilaianGuru() {
+                const idGuru = localStorage.getItem('guruId');
+                if (!idGuru || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    daftarSemuaPenilaianContainer.innerHTML = '<p>Login diperlukan untuk melihat riwayat penilaian.</p>'; return;
+                }
+                showLoading();
+                daftarSemuaPenilaianContainer.innerHTML = '<p>Memuat riwayat penilaian...</p>';
+                penilaianInfoMessage.classList.remove('show'); penilaianInfoMessage.classList.add('hidden');
+                penilaianNilaiMessage.classList.remove('show'); penilaianNilaiMessage.classList.add('hidden');
+
+                const params = new URLSearchParams({ action: 'getAllSesiPenilaianGuru', idGuru });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    daftarSemuaPenilaianContainer.innerHTML = '';
+                    if (result.success && result.data) {
+                        if (result.data.length > 0) {
+                            result.data.forEach(sesi => {
+                                const itemCard = document.createElement('div');
+                                itemCard.classList.add('penilaian-item-card');
+                                itemCard.innerHTML = `
+                                    <h4>${sesi.judulPenilaian}</h4>
+                                    <p><strong>Tanggal:</strong> ${sesi.tanggal}</p>
+                                    <p><strong>Kelas:</strong> ${getNamaByIdP(sesi.idKelas, masterKelasDataPenilaian, 'ID', 'Nama Kelas')}</p>
+                                    <p><strong>Mapel:</strong> ${getNamaByIdP(sesi.idMapel, masterMapelDataPenilaian, 'ID', 'Nama Mata Pelajaran')}</p>
+                                    <div class="penilaian-item-actions mt-1">
+                                        <button type="button" class="btn-edit-penilaian btn" data-idsesi="${sesi.idSesiPenilaian}"><i class="fas fa-edit"></i> Edit/Lihat Nilai</button>
+                                        <button type="button" class="btn-hapus-penilaian secondary btn" data-idsesi="${sesi.idSesiPenilaian}"><i class="fas fa-trash-alt"></i> Hapus Sesi</button>
+                                    </div>
+                                `;
+                                daftarSemuaPenilaianContainer.appendChild(itemCard);
+                            });
+                        } else {
+                            daftarSemuaPenilaianContainer.innerHTML = '<p>Anda belum membuat sesi penilaian apapun.</p>';
+                        }
+                    } else {
+                        daftarSemuaPenilaianContainer.innerHTML = `<p style="color:red;">Gagal memuat riwayat: ${result.message || 'Error'}</p>`;
+                    }
+                } catch (error) {
+                    daftarSemuaPenilaianContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            daftarSemuaPenilaianContainer.addEventListener('click', async (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                const idSesiToAct = target.dataset.idsesi;
+
+                penilaianInfoMessage.classList.remove('show'); penilaianInfoMessage.classList.add('hidden');
+                penilaianNilaiMessage.classList.remove('show'); penilaianNilaiMessage.classList.add('hidden');
+
+                if (target.classList.contains('btn-edit-penilaian')) {
+                    if (!idSesiToAct || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                    showLoading();
+                    resetAllFormsPenilaian();
+
+                    const params = new URLSearchParams({ action: 'getDetailSesiPenilaian', idSesiPenilaian: idSesiToAct });
+                    try {
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                        const result = await response.json();
+                        if (result.success && result.data && result.data.infoSesi) {
+                            showFormInfoPenilaian(true, result.data.infoSesi);
+                            currentNilaiSiswaData = result.data.nilaiSiswa || []; 
+                        } else {
+                            displayFeedbackMessage(penilaianInfoMessage, result.message || 'Gagal memuat detail penilaian.', false);
+                        }
+                    } catch (error) { displayFeedbackMessage(penilaianInfoMessage, 'Error memuat detail: ' + error.message, false); }
+                    finally { hideLoading(); }
+
+                } else if (target.classList.contains('btn-hapus-penilaian')) {
+                    if (!idSesiToAct || !confirm('Yakin ingin menghapus seluruh sesi penilaian ini beserta semua nilainya?')) return;
+                    if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                    
+                    showLoading();
+
+                    const params = new URLSearchParams({ action: 'deleteSesiPenilaian', idSesiPenilaian: idSesiToAct });
+                    try {
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                        const result = await response.json();
+                        displayFeedbackMessage(penilaianInfoMessage, result.message, result.success); 
+                        if (result.success) {
+                            await loadAllSesiPenilaianGuru();
+                            resetAllFormsPenilaian();
+                        }
+                    } catch (error) { displayFeedbackMessage(penilaianInfoMessage, 'Error menghapus: ' + error.message, false); }
+                    finally { hideLoading(); }
+                }
+            });
+
+            formNilaiSiswa.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                penilaianNilaiMessage.classList.remove('show'); 
+                penilaianNilaiMessage.classList.add('hidden');
+
+                const idGuru = localStorage.getItem('guruId');
+                const idSesi = idSesiPenilaianField.value; 
+                const idKelas = penilaianInputKelas.value;
+                const idMapel = penilaianInputMapel.value;
+                const judul = penilaianInputJudul.value;
+                const tanggal = penilaianInputTanggal.value;
+
+                if (!idGuru || !idKelas || !idMapel || !judul || !tanggal) {
+                    displayFeedbackMessage(penilaianNilaiMessage, 'Info sesi penilaian (Kelas, Mapel, Judul, Tanggal) harus lengkap.', false);
+                    return;
+                }
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+
+                const dataNilai = [];
+                listSiswaUntukPenilaian.querySelectorAll('.input-nilai-item input[type="number"]').forEach(input => {
+                    if (input.value.trim() !== '') { 
+                        dataNilai.push({ siswaId: input.dataset.siswaId, nilai: input.value });
+                    }
+                });
+                if (dataNilai.length === 0 && listSiswaUntukPenilaian.children.length > 0 && 
+                    Array.from(listSiswaUntukPenilaian.children).some(child => child.classList.contains('input-nilai-item'))) {
+                    displayFeedbackMessage(penilaianNilaiMessage, 'Input setidaknya satu nilai siswa.', false); return;
+                }
+                if (listSiswaUntukPenilaian.children.length === 0 || 
+                    !Array.from(listSiswaUntukPenilaian.children).some(child => child.classList.contains('input-nilai-item'))){
+                    displayFeedbackMessage(penilaianNilaiMessage, 'Tidak ada siswa untuk dinilai. Tampilkan daftar siswa terlebih dahulu.', false); return;
+                }
+
+                showLoading();
+                btnSimpanSemuaNilai.disabled = true;
+                const originalSimpanText = btnSimpanSemuaNilai.innerHTML;
+                btnSimpanSemuaNilai.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Nilai...';
+
+                const params = new URLSearchParams();
+                params.append('action', 'savePenilaianSiswa');
+                params.append('idSesiPenilaian', idSesi);
+                params.append('idGuru', idGuru);
+                params.append('idKelas', idKelas);
+                params.append('idMapel', idMapel);
+                params.append('judulPenilaian', judul);
+                params.append('tanggal', tanggal);
+                params.append('dataNilai', JSON.stringify(dataNilai));
+
+                let saveSuccess = false;
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    displayFeedbackMessage(penilaianNilaiMessage, result.message, result.success);
+                    saveSuccess = result.success;
+                    if (result.success && result.idSesiPenilaian) {
+                        idSesiPenilaianField.value = result.idSesiPenilaian; 
+                    }
+                } catch (error) {
+                    displayFeedbackMessage(penilaianNilaiMessage, 'Error menyimpan nilai: ' + error.message, false);
+                } finally {
+                    hideLoading();
+                    btnSimpanSemuaNilai.disabled = false;
+                    btnSimpanSemuaNilai.innerHTML = originalSimpanText;
+                    if (saveSuccess) {
+                        await loadAllSesiPenilaianGuru(); 
+                    }
+                }
+            });
+            
+            async function initPagePenilaian() {
+                showLoading();
+                await loadMasterDataForPenilaian(); 
+                await loadAllSesiPenilaianGuru();      
+                hideLoading();
+            }
+            initPagePenilaian();
+        });
+    </script>
+</body>
+</html>

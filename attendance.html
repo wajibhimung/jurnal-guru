@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presensi Siswa - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <h1>Aplikasi Guru</h1>
+        <p id="welcomeMessage">Selamat Datang!</p>
+    </header>
+
+    <nav class="desktop-nav">
+        <ul id="mainNavDesktop">
+            <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+            <li><a href="attendance.html" class="active"><i class="fas fa-user-check"></i> Presensi</a></li>
+            <li><a href="journal.html"><i class="fas fa-book-open"></i> Jurnal</a></li>
+            <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> Rekap</a></li>
+            <li><a href="#" id="logoutButtonDesktop"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        <section id="attendancePage" class="page active">
+            <h2><i class="fas fa-user-check icon-title"></i> Presensi Siswa</h2>
+             <div class="content-card">
+                <form id="formFilterPresensi">
+                    <div class="form-group">
+                        <label for="presensiKelas"><i class="fas fa-chalkboard icon-input"></i> Pilih Kelas:</label>
+                        <select id="presensiKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="presensiMapel"><i class="fas fa-book icon-input"></i> Pilih Mata Pelajaran:</label>
+                        <select id="presensiMapel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="presensiTanggal"><i class="fas fa-calendar-alt icon-input"></i> Tanggal:</label>
+                        <input type="date" id="presensiTanggal" required>
+                    </div>
+                    <button type="button" id="btnTampilkanSiswa" class="action-btn"><i class="fas fa-users"></i> Tampilkan Siswa</button>
+                </form>
+            </div>
+
+            <div id="daftarSiswaPresensi" class="student-list-container hidden">
+                <h3>Daftar Siswa</h3>
+                <form id="formSimpanPresensi">
+                    <div id="listSiswaUntukPresensi">
+                        <!-- Daftar siswa akan dimuat di sini -->
+                    </div>
+                    <button type="submit" id="btnSimpanPresensi" class="mt-2"><i class="fas fa-save"></i> Simpan Presensi</button>
+                </form>
+            </div>
+            <p id="presensiMessage" class="message-feedback hidden"></p> <!-- Mulai dengan hidden -->
+        </section>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="attendance.html" class="nav-item" data-page="attendance">
+            <i class="fas fa-user-check"></i>
+            <span>Presensi</span>
+        </a>
+        <a href="journal.html" class="nav-item" data-page="journal">
+            <i class="fas fa-book-open"></i>
+            <span>Jurnal</span>
+        </a>
+        <a href="reports.html" class="nav-item" data-page="reports">
+            <i class="fas fa-chart-bar"></i>
+            <span>Rekap</span>
+        </a>
+        <a href="#" id="mobileMenuTrigger" class="nav-item">
+            <i class="fas fa-bars"></i>
+            <span>Menu</span>
+        </a>
+    </nav>
+
+    <div class="mobile-menu-overlay hidden" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <button id="closeMobileMenu" class="close-menu-btn"><i class="fas fa-times"></i></button>
+            <h3>Menu Lainnya</h3>
+            <ul>
+                <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+                <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+                <li><a href="#" id="logoutButtonMobile"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginAndSetup();
+            setupMobileMenu();
+            populateDropdowns(['presensiKelas', 'presensiMapel']);
+            document.getElementById('presensiTanggal').valueAsDate = new Date();
+
+            const btnTampilkanSiswa = document.getElementById('btnTampilkanSiswa');
+            const listSiswaContainer = document.getElementById('listSiswaUntukPresensi');
+            const daftarSiswaPresensiDiv = document.getElementById('daftarSiswaPresensi');
+            const formSimpanPresensi = document.getElementById('formSimpanPresensi');
+            const btnSimpanPresensi = document.getElementById('btnSimpanPresensi');
+            const presensiMessage = document.getElementById('presensiMessage');
+
+            function displayMessage(message, isSuccess) {
+                presensiMessage.textContent = message;
+                presensiMessage.className = 'message-feedback'; // Reset kelas
+                if (isSuccess) {
+                    presensiMessage.classList.add('success');
+                } else {
+                    presensiMessage.classList.add('error');
+                }
+                presensiMessage.classList.remove('hidden');
+            }
+
+            async function loadSiswaList() {
+                // 1. Persiapan sebelum fetch
+                // Pesan lama akan dihandle oleh aksi berikutnya (simpan atau tampilkan siswa baru)
+                // Untuk loadSiswaList, kita tidak menampilkan pesan sukses, hanya error jika ada.
+                // presensiMessage.classList.add('hidden'); // Jangan sembunyikan pesan dari aksi simpan
+
+                daftarSiswaPresensiDiv.classList.add('hidden'); // Sembunyikan dulu saat memuat
+                listSiswaContainer.innerHTML = '';
+
+                const idKelas = document.getElementById('presensiKelas').value;
+                const tanggalPresensi = document.getElementById('presensiTanggal').value;
+                const idMapel = document.getElementById('presensiMapel').value;
+                const idGuru = localStorage.getItem('guruId');
+
+                if (!idKelas || !tanggalPresensi || !idMapel || !idGuru) {
+                    // Tidak menampilkan error di sini karena ini bisa dipanggil setelah save
+                    // Validasi utama ada di event listener btnTampilkanSiswa
+                    return false; // Indikasi gagal memuat karena validasi
+                }
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    displayMessage('URL Script belum dikonfigurasi.', false);
+                    return false;
+                }
+
+                // 2. Tampilkan loading
+                showLoading();
+                btnTampilkanSiswa.disabled = true; // Tetap disable tombol utama saat reload
+
+                const params = new URLSearchParams({ 
+                    action: 'getSiswaByKelas', 
+                    idKelas,
+                    tanggalPresensi,
+                    idMapel,
+                    idGuru
+                });
+
+                try {
+                    // 3. Lakukan fetch
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+
+                    // 4. Proses hasil fetch
+                    if (result.success) {
+                        if (result.data.length > 0) {
+                            result.data.forEach(siswa => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.classList.add('student-item');
+                                let summaryDotsHtml = '<div class="student-summary-dots">';
+                                if (siswa.summary) {
+                                    if (siswa.summary.H > 0) summaryDotsHtml += `<span class="summary-dot dot-h" title="Hadir: ${siswa.summary.H}">${siswa.summary.H}</span>`;
+                                    if (siswa.summary.S > 0) summaryDotsHtml += `<span class="summary-dot dot-s" title="Sakit: ${siswa.summary.S}">${siswa.summary.S}</span>`;
+                                    if (siswa.summary.I > 0) summaryDotsHtml += `<span class="summary-dot dot-i" title="Izin: ${siswa.summary.I}">${siswa.summary.I}</span>`;
+                                    if (siswa.summary.A > 0) summaryDotsHtml += `<span class="summary-dot dot-a" title="Alfa: ${siswa.summary.A}">${siswa.summary.A}</span>`;
+                                }
+                                summaryDotsHtml += '</div>';
+                                if (summaryDotsHtml === '<div class="student-summary-dots"></div>') summaryDotsHtml = '';
+                                const statusHariIni = siswa.statusHariIni || "H";
+                                itemDiv.innerHTML = `
+                                    <div class="student-info">
+                                        <span class="student-name">${siswa.Nama}</span>
+                                        ${summaryDotsHtml}
+                                    </div>
+                                    <div class="attendance-radio-group" data-siswa-id="${siswa.ID}">
+                                        <input type="radio" id="h_${siswa.ID}" name="keterangan_${siswa.ID}" value="H" ${statusHariIni === 'H' ? 'checked' : ''}>
+                                        <label for="h_${siswa.ID}" title="Hadir">H</label>
+                                        <input type="radio" id="s_${siswa.ID}" name="keterangan_${siswa.ID}" value="S" ${statusHariIni === 'S' ? 'checked' : ''}>
+                                        <label for="s_${siswa.ID}" title="Sakit">S</label>
+                                        <input type="radio" id="i_${siswa.ID}" name="keterangan_${siswa.ID}" value="I" ${statusHariIni === 'I' ? 'checked' : ''}>
+                                        <label for="i_${siswa.ID}" title="Izin">I</label>
+                                        <input type="radio" id="a_${siswa.ID}" name="keterangan_${siswa.ID}" value="A" ${statusHariIni === 'A' ? 'checked' : ''}>
+                                        <label for="a_${siswa.ID}" title="Alfa">A</label>
+                                    </div>
+                                `;
+                                listSiswaContainer.appendChild(itemDiv);
+                            });
+                        } else {
+                            listSiswaContainer.innerHTML = '<p style="text-align:center; padding: 1rem 0;">Tidak ada siswa di kelas ini.</p>';
+                        }
+                        daftarSiswaPresensiDiv.classList.remove('hidden'); // Tampilkan kontainer
+                        return true; // Indikasi sukses memuat
+                    } else {
+                        displayMessage(result.message || 'Gagal memuat siswa.', false);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error fetching siswa: ", error);
+                    displayMessage("Terjadi kesalahan saat mengambil data siswa: " + error.message, false);
+                    return false;
+                } finally {
+                    // 5. Sembunyikan loading dan enable tombol setelah semua selesai
+                    hideLoading();
+                    btnTampilkanSiswa.disabled = false;
+                }
+            }
+
+            btnTampilkanSiswa.addEventListener('click', async () => {
+                presensiMessage.classList.add('hidden'); // Sembunyikan pesan lama sebelum memuat siswa
+                await loadSiswaList(); // Panggil fungsi untuk memuat siswa
+            });
+
+            formSimpanPresensi.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // 1. Persiapan sebelum fetch
+                presensiMessage.classList.add('hidden'); // Sembunyikan pesan lama
+
+                const guruId = localStorage.getItem('guruId');
+                const kelasId = document.getElementById('presensiKelas').value;
+                const mapelId = document.getElementById('presensiMapel').value;
+                const tanggal = document.getElementById('presensiTanggal').value;
+
+                if (!guruId || !kelasId || !mapelId || !tanggal) {
+                    displayMessage('Pastikan semua field filter dan tanggal terisi.', false);
+                    return;
+                }
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    displayMessage('URL Script belum dikonfigurasi.', false);
+                    return;
+                }
+
+                const dataPresensi = [];
+                listSiswaContainer.querySelectorAll('.attendance-radio-group').forEach(group => {
+                    const siswaId = group.dataset.siswaId;
+                    const selectedRadio = group.querySelector(`input[name="keterangan_${siswaId}"]:checked`);
+                    if (selectedRadio) {
+                        dataPresensi.push({
+                            siswaId: siswaId,
+                            keterangan: selectedRadio.value
+                        });
+                    }
+                });
+
+                if (dataPresensi.length === 0) {
+                    displayMessage('Tidak ada data siswa untuk disimpan.', false);
+                    return;
+                }
+
+                // 2. Tampilkan loading dan disable tombol
+                showLoading();
+                btnSimpanPresensi.disabled = true;
+                const originalButtonText = btnSimpanPresensi.innerHTML;
+                btnSimpanPresensi.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+                const params = new URLSearchParams();
+                params.append('action', 'savePresensi');
+                params.append('guruId', guruId);
+                params.append('kelasId', kelasId);
+                params.append('mapelId', mapelId);
+                params.append('tanggal', tanggal);
+                params.append('dataPresensi', JSON.stringify(dataPresensi));
+
+                let saveSuccess = false;
+                try {
+                    // 3. Lakukan fetch
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+
+                    // 4. Tampilkan pesan hasil dari backend
+                    displayMessage(result.message, result.success);
+                    saveSuccess = result.success;
+
+                } catch (error) {
+                    console.error("Error saving presensi: ", error);
+                    displayMessage("Terjadi kesalahan saat menyimpan presensi: " + error.message, false);
+                } finally {
+                    // 5. Sembunyikan loading dan enable tombol setelah semua selesai
+                    // Loading utama disembunyikan di sini. Loading dari loadSiswaList akan ditangani sendiri.
+                    hideLoading(); 
+                    btnSimpanPresensi.disabled = false;
+                    btnSimpanPresensi.innerHTML = originalButtonText;
+
+                    // Jika penyimpanan sukses, panggil loadSiswaList untuk refresh
+                    if (saveSuccess) {
+                        await loadSiswaList();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

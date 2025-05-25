@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Rekap Nilai Siswa</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; font-size: 10pt; line-height: 1.3; }
+        .print-container { width: 100%; }
+        h1 { text-align: center; font-size: 16pt; margin-bottom: 5px; border-bottom: 2px solid black; padding-bottom: 5px;}
+        .info-header { margin-bottom: 15px; font-size: 10pt; }
+        .info-header table { width: auto; border-collapse: collapse; margin-bottom: 10px; }
+        .info-header td { padding: 2px 5px; vertical-align: top; }
+        .info-header td:first-child { font-weight: bold; padding-right: 10px; }
+        table.rekap-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 8pt; }
+        table.rekap-table th, table.rekap-table td { border: 1px solid #333; padding: 4px; text-align: left; vertical-align: top; word-wrap: break-word; }
+        table.rekap-table th { background-color: #e0e0e0; font-weight: bold; text-align: center; }
+        table.rekap-table td.center, table.rekap-table td.number { text-align: center; }
+        @page { margin: 0.6in; size: A4 landscape; /* Landscape mungkin lebih baik untuk banyak kolom nilai */ }
+        button { display: none; } 
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <h1 id="judulLaporan">Rekap Nilai Siswa</h1>
+        <div class="info-header">
+            <table>
+                <tr><td>Kelas</td><td>: <span id="infoKelas"></span></td></tr>
+                <tr><td>Mata Pelajaran</td><td>: <span id="infoMapel"></span></td></tr>
+                <tr><td>Dicetak Tanggal</td><td>: <span id="infoTanggalCetak"></span></td></tr>
+            </table>
+        </div>
+        <table class="rekap-table" id="tabelCetakNilai">
+            <thead><!-- Header akan dimasukkan oleh JavaScript --></thead>
+            <tbody><!-- Data tabel akan dimasukkan oleh JavaScript --></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const headersCetak = JSON.parse(localStorage.getItem('headersCetakNilai'));
+            const dataCetak = JSON.parse(localStorage.getItem('dataCetakNilai'));
+            const infoFilter = JSON.parse(localStorage.getItem('infoFilterNilai'));
+            const judulLaporan = localStorage.getItem('judulLaporanNilai');
+
+            localStorage.removeItem('headersCetakNilai');
+            localStorage.removeItem('dataCetakNilai');
+            localStorage.removeItem('infoFilterNilai');
+            localStorage.removeItem('judulLaporanNilai');
+
+            if (judulLaporan) {
+                document.getElementById('judulLaporan').textContent = judulLaporan;
+                document.title = judulLaporan;
+            }
+            if (infoFilter) {
+                document.getElementById('infoKelas').textContent = infoFilter.kelas || '-';
+                document.getElementById('infoMapel').textContent = infoFilter.mapel || '-';
+                document.getElementById('infoTanggalCetak').textContent = new Date().toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                });
+            }
+
+            const tabelHead = document.querySelector('#tabelCetakNilai thead');
+            const tabelBody = document.querySelector('#tabelCetakNilai tbody');
+
+            if (headersCetak && headersCetak.length > 0) {
+                const headerRow = tabelHead.insertRow();
+                headersCetak.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+            } else {
+                tabelHead.innerHTML = '<tr><th>Gagal memuat header tabel.</th></tr>';
+            }
+
+            if (dataCetak && dataCetak.length > 0 && headersCetak && headersCetak.length > 0) {
+                dataCetak.forEach((item) => {
+                    const row = tabelBody.insertRow();
+                    headersCetak.forEach(headerKey => {
+                        const cell = row.insertCell();
+                        cell.textContent = item[headerKey] !== undefined ? item[headerKey] : '-';
+                        if (headerKey !== "Nama Siswa") { // Rata tengah untuk nilai dan rata-rata
+                            cell.classList.add('center');
+                        }
+                    });
+                });
+                setTimeout(() => { window.print(); }, 500);
+            } else {
+                const colSpan = headersCetak ? headersCetak.length : 1;
+                tabelBody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;">Tidak ada data untuk ditampilkan.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Rekap Presensi Siswa</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; font-size: 10pt; line-height: 1.4; }
+        .print-container { width: 100%; }
+        h1 { text-align: center; font-size: 16pt; margin-bottom: 5px; border-bottom: 2px solid black; padding-bottom: 5px; }
+        .info-header { margin-bottom: 15px; font-size: 10pt; }
+        .info-header table { width: auto; border-collapse: collapse; margin-bottom: 10px; }
+        .info-header td { padding: 2px 5px; vertical-align: top; }
+        .info-header td:first-child { font-weight: bold; min-width: 120px; padding-right: 10px; }
+        table.rekap-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9pt; }
+        table.rekap-table th, table.rekap-table td { border: 1px solid #333; padding: 6px 8px; text-align: left; }
+        table.rekap-table th { background-color: #e0e0e0; font-weight: bold; text-align: center; }
+        table.rekap-table td.center { text-align: center; }
+        @page { margin: 0.75in; size: A4 portrait; }
+        button, script ~ script { display: none !important; } 
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <h1 id="judulLaporan">Rekap Presensi Siswa</h1>
+        <div class="info-header">
+            <table>
+                <tr><td>Kelas</td><td>: <span id="infoKelas"></span></td></tr>
+                <tr><td>Mata Pelajaran</td><td>: <span id="infoMapel"></span></td></tr>
+                <tr><td>Periode</td><td>: <span id="infoPeriode"></span></td></tr>
+                <tr><td>Dicetak Tanggal</td><td>: <span id="infoTanggalCetak"></span></td></tr>
+            </table>
+        </div>
+        <table class="rekap-table" id="tabelCetakPresensi">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const headersDisplay = JSON.parse(localStorage.getItem('headersCetakPresensi'));
+            const dataKeysOrder = JSON.parse(localStorage.getItem('dataKeysOrderPresensi')); // Ambil urutan data key
+            const dataCetak = JSON.parse(localStorage.getItem('dataCetakPresensi'));
+            const infoFilter = JSON.parse(localStorage.getItem('infoFilterPresensi'));
+            const judulLaporan = localStorage.getItem('judulLaporanPresensi');
+
+            localStorage.removeItem('headersCetakPresensi');
+            localStorage.removeItem('dataKeysOrderPresensi');
+            localStorage.removeItem('dataCetakPresensi');
+            localStorage.removeItem('infoFilterPresensi');
+            localStorage.removeItem('judulLaporanPresensi');
+
+            if (judulLaporan) {
+                document.getElementById('judulLaporan').textContent = judulLaporan;
+                document.title = judulLaporan; 
+            }
+            if (infoFilter) {
+                document.getElementById('infoKelas').textContent = infoFilter.kelas || '-';
+                document.getElementById('infoMapel').textContent = infoFilter.mapel || '-';
+                document.getElementById('infoPeriode').textContent = (infoFilter.startDate && infoFilter.endDate) 
+                                                                    ? `${infoFilter.startDate} s/d ${infoFilter.endDate}` : '-';
+                document.getElementById('infoTanggalCetak').textContent = new Date().toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                });
+            }
+
+            const tabelHead = document.querySelector('#tabelCetakPresensi thead');
+            const tabelBody = document.querySelector('#tabelCetakPresensi tbody');
+            tabelHead.innerHTML = ''; 
+            tabelBody.innerHTML = '';
+
+            const finalHeaders = ['No.', ...(headersDisplay || ['Nama Siswa', 'H', 'S', 'I', 'A'])]; // Fallback jika headersDisplay null
+
+            const headerRow = tabelHead.insertRow();
+            finalHeaders.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            
+            // Urutan key data yang sebenarnya (dari reports.html)
+            const actualDataKeys = dataKeysOrder || ['namaSiswa', 'totalH', 'totalS', 'totalI', 'totalA'];
+
+            if (dataCetak && dataCetak.length > 0) {
+                dataCetak.forEach((item, index) => {
+                    const row = tabelBody.insertRow();
+                    row.insertCell().textContent = index + 1; // Nomor urut
+
+                    actualDataKeys.forEach(key => { // Loop berdasarkan urutan data key
+                         const cell = row.insertCell();
+                         cell.textContent = item[key] !== undefined ? item[key] : '-';
+                         if (key !== 'namaSiswa') { 
+                            cell.classList.add('center');
+                         }
+                    });
+                });
+                setTimeout(() => { window.print(); }, 500); 
+            } else {
+                const colSpan = finalHeaders.length;
+                tabelBody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;">Tidak ada data untuk ditampilkan.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>

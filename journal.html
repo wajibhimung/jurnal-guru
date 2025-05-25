@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Pembelajaran - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style tambahan spesifik untuk daftar jurnal */
+        .jurnal-list-container { margin-top: 1.5rem; }
+        .jurnal-item-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.25rem; /* Sedikit lebih besar paddingnya */
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 5px solid #1e88e5; /* Aksen biru lebih sesuai tema */
+        }
+        .jurnal-item-card h4 { 
+            margin-top: 0; 
+            margin-bottom: 0.75rem; /* Jarak lebih */
+            font-size: 1.15rem; /* Sedikit lebih besar */
+            color: #1e88e5; /* Warna judul sesuai tema */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .jurnal-item-card .jurnal-meta {
+            font-size: 0.8rem;
+            color: #78909c;
+            margin-bottom: 0.75rem;
+        }
+        .jurnal-item-card .jurnal-content-block {
+            margin-bottom: 0.8rem;
+            padding-left: 10px;
+            border-left: 2px solid #e0e0e0;
+        }
+        .jurnal-item-card .jurnal-content-block strong {
+            display: block;
+            font-weight: 500;
+            color: #455a64;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+        .jurnal-item-card .jurnal-content-block p {
+            font-size: 0.9rem;
+            color: #546e7a;
+            margin-bottom: 0;
+            white-space: pre-wrap; /* Agar format baris baru dari textarea terjaga */
+            line-height: 1.5;
+        }
+        .jurnal-item-actions {
+            margin-top: 1rem;
+            text-align: right; /* Tombol ke kanan */
+        }
+        .jurnal-item-actions button {
+            padding: 0.5rem 1rem; /* Padding tombol sedikit lebih besar */
+            font-size: 0.85rem;
+            margin-left: 0.5rem; /* Ganti margin-right menjadi margin-left */
+            border-radius: 6px;
+        }
+        .jurnal-form-section { display: none; }
+        .jurnal-form-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Aplikasi Guru</h1>
+        <p id="welcomeMessage">Selamat Datang!</p>
+    </header>
+
+    <nav class="desktop-nav">
+        <ul id="mainNavDesktop">
+            <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+            <li><a href="attendance.html"><i class="fas fa-user-check"></i> Presensi</a></li>
+            <li><a href="journal.html" class="active"><i class="fas fa-book-open"></i> Jurnal</a></li>
+            <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> Rekap</a></li>
+            <li><a href="#" id="logoutButtonDesktop"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        <section id="journalPage" class="page active">
+            <h2><i class="fas fa-book-open icon-title"></i> Jurnal Pembelajaran Saya</h2>
+            
+            <button type="button" id="btnTampilkanFormBuatJurnal" class="btn mb-2"><i class="fas fa-plus"></i> Buat Jurnal Baru</button>
+            
+            <div id="jurnalFormContainer" class="content-card jurnal-form-section mb-2">
+                <h3 id="jurnalFormTitle">Buat Jurnal Baru</h3>
+                <form id="formJurnal">
+                    <input type="hidden" id="jurnalId">
+                    <div class="form-group">
+                        <label for="jurnalInputKelas"><i class="fas fa-chalkboard icon-input"></i> Pilih Kelas:</label>
+                        <select id="jurnalInputKelas" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalInputMapel"><i class="fas fa-book icon-input"></i> Pilih Mata Pelajaran:</label>
+                        <select id="jurnalInputMapel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalInputTanggal"><i class="fas fa-calendar-alt icon-input"></i> Tanggal:</label>
+                        <input type="date" id="jurnalInputTanggal" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalTujuan">Tujuan Pembelajaran:</label>
+                        <textarea id="jurnalTujuan" placeholder="Tuliskan tujuan pembelajaran hari ini..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalMateri">Materi Pokok:</label>
+                        <textarea id="jurnalMateri" placeholder="Materi yang disampaikan..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalRefleksi">Refleksi Pembelajaran:</label>
+                        <textarea id="jurnalRefleksi" placeholder="Refleksi dari proses pembelajaran..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jurnalTindakLanjut">Tindak Lanjut:</label>
+                        <textarea id="jurnalTindakLanjut" placeholder="Tindak lanjut untuk pertemuan berikutnya..." required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" id="btnSimpanJurnal" style="flex-grow: 1;"><i class="fas fa-save"></i> Simpan Jurnal</button>
+                        <button type="button" id="btnBatalEditJurnal" class="secondary" style="flex-grow: 1;"><i class="fas fa-times"></i> Batal</button>
+                    </div>
+                </form>
+            </div>
+            <p id="jurnalMessage" class="message-feedback hidden"></p>
+
+            <div class="content-card jurnal-list-container">
+                <h3><i class="fas fa-history"></i> Riwayat Jurnal</h3>
+                <div id="daftarSemuaJurnal">
+                    <p>Memuat riwayat jurnal...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="attendance.html" class="nav-item" data-page="attendance"><i class="fas fa-user-check"></i><span>Presensi</span></a>
+        <a href="journal.html" class="nav-item" data-page="journal"><i class="fas fa-book-open"></i><span>Jurnal</span></a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i><span>Rekap</span></a>
+        <a href="#" id="mobileMenuTrigger" class="nav-item"><i class="fas fa-bars"></i><span>Menu</span></a>
+    </nav>
+
+    <div class="mobile-menu-overlay hidden" id="mobileMenuOverlay">
+        <div class="mobile-menu-content">
+            <button id="closeMobileMenu" class="close-menu-btn"><i class="fas fa-times"></i></button>
+            <h3>Menu Lainnya</h3>
+            <ul>
+                <li><a href="master-data.html"><i class="fas fa-database"></i> Data Master</a></li>
+                <li><a href="assessment.html"><i class="fas fa-graduation-cap"></i> Penilaian</a></li>
+                <li><a href="#" id="logoutButtonMobile"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginAndSetup();
+            setupMobileMenu();
+            populateDropdowns(['jurnalInputKelas', 'jurnalInputMapel']);
+            document.getElementById('jurnalInputTanggal').valueAsDate = new Date();
+
+            const formJurnal = document.getElementById('formJurnal');
+            const jurnalMessage = document.getElementById('jurnalMessage');
+            const btnSimpanJurnal = document.getElementById('btnSimpanJurnal');
+            const jurnalIdField = document.getElementById('jurnalId');
+            const daftarSemuaJurnalContainer = document.getElementById('daftarSemuaJurnal');
+            
+            const jurnalFormContainer = document.getElementById('jurnalFormContainer');
+            const jurnalFormTitle = document.getElementById('jurnalFormTitle');
+            const btnTampilkanFormBuatJurnal = document.getElementById('btnTampilkanFormBuatJurnal');
+            const btnBatalEditJurnal = document.getElementById('btnBatalEditJurnal');
+
+            const jurnalInputKelas = document.getElementById('jurnalInputKelas');
+            const jurnalInputMapel = document.getElementById('jurnalInputMapel');
+            const jurnalInputTanggal = document.getElementById('jurnalInputTanggal');
+            const jurnalTujuan = document.getElementById('jurnalTujuan');
+            const jurnalMateri = document.getElementById('jurnalMateri');
+            const jurnalRefleksi = document.getElementById('jurnalRefleksi');
+            const jurnalTindakLanjut = document.getElementById('jurnalTindakLanjut');
+            
+            let masterKelasData = [];
+            let masterMapelData = [];
+
+            async function loadMasterDataForJurnal() {
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                const params = new URLSearchParams({ action: 'getMasterData' });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    if (result.success) {
+                        masterKelasData = result.kelas || [];
+                        masterMapelData = result.mapel || [];
+                    }
+                } catch (error) {
+                    console.error("Gagal memuat master data untuk jurnal:", error);
+                }
+            }
+            
+            function getNamaById(id, dataArray, idField = 'ID', nameField = 'Nama Kelas') {
+                if (!id || !dataArray || dataArray.length === 0) return id || 'N/A';
+                const item = dataArray.find(d => String(d[idField]).trim() === String(id).trim());
+                return item ? String(item[nameField]).trim() : id;
+            }
+
+            function displayJurnalMessage(message, isSuccess) {
+                jurnalMessage.textContent = message;
+                jurnalMessage.className = 'message-feedback';
+                jurnalMessage.classList.add(isSuccess ? 'success' : 'error');
+                jurnalMessage.classList.remove('hidden');
+            }
+
+            function resetAndHideFormJurnal() {
+                formJurnal.reset();
+                jurnalIdField.value = '';
+                jurnalFormTitle.textContent = 'Buat Jurnal Baru';
+                btnSimpanJurnal.innerHTML = '<i class="fas fa-save"></i> Simpan Jurnal';
+                jurnalFormContainer.classList.remove('active');
+                jurnalInputTanggal.valueAsDate = new Date();
+                jurnalInputKelas.value = "";
+                jurnalInputMapel.value = "";
+            }
+
+            btnTampilkanFormBuatJurnal.addEventListener('click', () => {
+                resetAndHideFormJurnal();
+                jurnalFormTitle.textContent = 'Buat Jurnal Baru';
+                jurnalFormContainer.classList.add('active');
+                jurnalMessage.classList.add('hidden');
+                jurnalInputTanggal.valueAsDate = new Date();
+                jurnalInputKelas.value = "";
+                jurnalInputMapel.value = "";
+                jurnalFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            btnBatalEditJurnal.addEventListener('click', () => {
+                resetAndHideFormJurnal();
+                jurnalMessage.classList.add('hidden');
+            });
+
+            async function loadAllJurnalGuru() {
+                const idGuru = localStorage.getItem('guruId');
+                if (!idGuru || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    daftarSemuaJurnalContainer.innerHTML = '<p>Login diperlukan untuk melihat jurnal.</p>';
+                    return;
+                }
+                
+                showLoading();
+                daftarSemuaJurnalContainer.innerHTML = '<p>Memuat riwayat jurnal...</p>';
+                jurnalMessage.classList.add('hidden');
+
+                const params = new URLSearchParams({ action: 'getAllJurnalGuru', idGuru });
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    daftarSemuaJurnalContainer.innerHTML = ''; 
+
+                    if (result.success && result.data) {
+                        if (result.data.length > 0) {
+                            result.data.forEach(jurnal => {
+                                const itemCard = document.createElement('div');
+                                itemCard.classList.add('jurnal-item-card');
+                                // Fungsi untuk membersihkan dan menampilkan teks dengan line break
+                                const formatTextContent = (text) => text.replace(/\n/g, '<br>');
+
+                                itemCard.innerHTML = `
+                                    <h4>${jurnal.tanggal} 
+                                        <span class="jurnal-meta">
+                                            ${getNamaById(jurnal.idKelas, masterKelasData, 'ID', 'Nama Kelas')} - 
+                                            ${getNamaById(jurnal.idMapel, masterMapelData, 'ID', 'Nama Mata Pelajaran')}
+                                        </span>
+                                    </h4>
+                                    <div class="jurnal-content-block">
+                                        <strong>Tujuan Pembelajaran:</strong>
+                                        <p>${formatTextContent(jurnal.tujuan)}</p>
+                                    </div>
+                                    <div class="jurnal-content-block">
+                                        <strong>Materi Pokok:</strong>
+                                        <p>${formatTextContent(jurnal.materi)}</p>
+                                    </div>
+                                    <div class="jurnal-content-block">
+                                        <strong>Refleksi:</strong>
+                                        <p>${formatTextContent(jurnal.refleksi)}</p>
+                                    </div>
+                                    <div class="jurnal-content-block">
+                                        <strong>Tindak Lanjut:</strong>
+                                        <p>${formatTextContent(jurnal.tindakLanjut)}</p>
+                                    </div>
+                                    <div class="jurnal-item-actions">
+                                        <button type="button" class="btn-edit-jurnal btn" data-id="${jurnal.id}"><i class="fas fa-edit"></i> Edit</button>
+                                        <button type="button" class="btn-hapus-jurnal secondary btn" data-id="${jurnal.id}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                                    </div>
+                                `;
+                                daftarSemuaJurnalContainer.appendChild(itemCard);
+                            });
+                        } else {
+                            daftarSemuaJurnalContainer.innerHTML = '<p>Anda belum membuat jurnal apapun. Klik "Buat Jurnal Baru" untuk memulai.</p>';
+                        }
+                    } else {
+                        daftarSemuaJurnalContainer.innerHTML = `<p style="color:red;">Gagal memuat riwayat jurnal: ${result.message || 'Kesalahan tidak diketahui'}</p>`;
+                    }
+                } catch (error) {
+                    console.error("Error loadAllJurnalGuru:", error);
+                    daftarSemuaJurnalContainer.innerHTML = `<p style="color:red;">Terjadi kesalahan: ${error.message}</p>`;
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            daftarSemuaJurnalContainer.addEventListener('click', async (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                const jurnalIdToAct = target.dataset.id;
+
+                if (target.classList.contains('btn-edit-jurnal')) {
+                    if (!jurnalIdToAct || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                    jurnalMessage.classList.add('hidden');
+                    showLoading();
+                    resetAndHideFormJurnal(); 
+
+                    const params = new URLSearchParams({ action: 'getJurnalById', jurnalId: jurnalIdToAct });
+                    try {
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            jurnalIdField.value = result.data.id;
+                            jurnalInputKelas.value = result.data.idKelas || '';
+                            jurnalInputMapel.value = result.data.idMapel || '';
+                            jurnalInputTanggal.value = result.data.tanggal || '';
+                            jurnalTujuan.value = result.data.tujuan || '';
+                            jurnalMateri.value = result.data.materi || '';
+                            jurnalRefleksi.value = result.data.refleksi || '';
+                            jurnalTindakLanjut.value = result.data.tindakLanjut || '';
+                            
+                            jurnalFormTitle.textContent = 'Edit Jurnal';
+                            btnSimpanJurnal.innerHTML = '<i class="fas fa-edit"></i> Update Jurnal';
+                            jurnalFormContainer.classList.add('active'); 
+                            jurnalFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+                        } else {
+                            displayJurnalMessage(result.message || 'Gagal memuat detail jurnal untuk diedit.', false);
+                        }
+                    } catch (error) {
+                        displayJurnalMessage('Error: ' + error.message, false);
+                    } finally {
+                        hideLoading();
+                    }
+
+                } else if (target.classList.contains('btn-hapus-jurnal')) {
+                    if (!jurnalIdToAct || !confirm('Apakah Anda yakin ingin menghapus jurnal ini? Aksi ini tidak dapat dibatalkan.')) return;
+                    if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+                    
+                    jurnalMessage.classList.add('hidden');
+                    showLoading();
+
+                    const params = new URLSearchParams({ action: 'deleteJurnal', jurnalId: jurnalIdToAct });
+                    try {
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                        const result = await response.json();
+                        displayJurnalMessage(result.message, result.success);
+                        if (result.success) {
+                            await loadAllJurnalGuru(); 
+                            resetAndHideFormJurnal(); 
+                        }
+                    } catch (error) {
+                        displayJurnalMessage('Error: ' + error.message, false);
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            });
+
+            formJurnal.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                jurnalMessage.classList.add('hidden');
+
+                const idGuru = localStorage.getItem('guruId');
+                const idKelas = jurnalInputKelas.value;
+                const idMapel = jurnalInputMapel.value;
+                const tanggal = jurnalInputTanggal.value;
+                
+                if (!idGuru || !idKelas || !idMapel || !tanggal) {
+                    displayJurnalMessage('Pastikan Kelas, Mata Pelajaran, dan Tanggal pada form sudah dipilih/diisi.', false);
+                    return;
+                }
+                 if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    displayJurnalMessage('URL Script belum dikonfigurasi.', false); return;
+                }
+
+                showLoading();
+                btnSimpanJurnal.disabled = true;
+                const originalSimpanText = btnSimpanJurnal.innerHTML;
+                btnSimpanJurnal.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+                const params = new URLSearchParams();
+                params.append('action', 'saveJurnal');
+                params.append('jurnalId', jurnalIdField.value);
+                params.append('idGuru', idGuru);
+                params.append('idKelas', idKelas);
+                params.append('idMapel', idMapel);
+                params.append('tanggal', tanggal);
+                params.append('tujuan', jurnalTujuan.value);
+                params.append('materi', jurnalMateri.value);
+                params.append('refleksi', jurnalRefleksi.value);
+                params.append('tindakLanjut', jurnalTindakLanjut.value);
+
+                let saveSuccess = false;
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const result = await response.json();
+                    displayJurnalMessage(result.message, result.success);
+                    saveSuccess = result.success;
+
+                    if (result.success) {
+                        resetAndHideFormJurnal(); // Sembunyikan form setelah sukses
+                    }
+                } catch (error) {
+                    console.error("Error simpan jurnal:", error);
+                    displayJurnalMessage('Terjadi kesalahan saat menyimpan jurnal: ' + error.message, false);
+                } finally {
+                    hideLoading();
+                    btnSimpanJurnal.disabled = false;
+                    // Reset teks tombol jika form tidak lagi aktif atau ID kosong
+                     if (!jurnalFormContainer.classList.contains('active') || !jurnalIdField.value) {
+                        btnSimpanJurnal.innerHTML = '<i class="fas fa-save"></i> Simpan Jurnal';
+                    } else { // Jika form masih aktif dan ada ID (misal gagal update)
+                        btnSimpanJurnal.innerHTML = '<i class="fas fa-edit"></i> Update Jurnal';
+                    }
+                    if(saveSuccess) {
+                        await loadAllJurnalGuru(); // Muat ulang daftar setelah semua selesai
+                    }
+                }
+            });
+            
+            async function initPage() {
+                showLoading(); // Tampilkan loading awal
+                await loadMasterDataForJurnal(); 
+                await loadAllJurnalGuru();      
+                hideLoading(); // Sembunyikan loading setelah semua selesai
+            }
+            initPage();
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Rekap Jurnal Mengajar</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; font-size: 10pt; line-height: 1.3; }
+        .print-container { width: 100%; }
+        h1 { text-align: center; font-size: 16pt; margin-bottom: 5px; border-bottom: 2px solid black; padding-bottom: 5px;}
+        .info-header { margin-bottom: 15px; font-size: 10pt; }
+        .info-header table { width: auto; border-collapse: collapse; margin-bottom: 10px; }
+        .info-header td { padding: 2px 5px; vertical-align: top; }
+        .info-header td:first-child { font-weight: bold; min-width: 120px; padding-right: 10px; }
+        table.rekap-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 8.5pt; }
+        table.rekap-table th, table.rekap-table td { border: 1px solid #333; padding: 5px; text-align: left; vertical-align: top; word-wrap: break-word; }
+        table.rekap-table th { background-color: #e0e0e0; font-weight: bold; text-align: center; }
+        table.rekap-table td .pre-wrap { white-space: pre-wrap; word-break: break-word; }
+        @page { margin: 0.7in; size: A4 landscape; }
+        button, script ~ script { display: none !important; } 
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <h1 id="judulLaporan">Rekap Jurnal Mengajar</h1>
+        <div class="info-header">
+            <table>
+                <tr><td>Kelas</td><td>: <span id="infoKelas"></span></td></tr>
+                <tr><td>Mata Pelajaran</td><td>: <span id="infoMapel"></span></td></tr>
+                <tr><td>Periode</td><td>: <span id="infoPeriode"></span></td></tr>
+                <tr><td>Dicetak Tanggal</td><td>: <span id="infoTanggalCetak"></span></td></tr>
+            </table>
+        </div>
+        <table class="rekap-table" id="tabelCetakJurnal">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const formatTextContent = (text) => (text || '-').replace(/\n/g, '<br>');
+
+            // 1. Ambil data dari localStorage
+            //    `headersDisplayFromReports` adalah array header ramah pengguna.
+            //    `dataKeysFromReports` adalah array kunci objek data asli (mis. ['tanggal', 'tujuan', ...]).
+            const headersDisplayFromReports = JSON.parse(localStorage.getItem('headersCetakJurnal'));
+            const dataKeysFromReports = JSON.parse(localStorage.getItem('dataKeysOrderJurnal'));
+            const dataCetak = JSON.parse(localStorage.getItem('dataCetakJurnal'));
+            const infoFilter = JSON.parse(localStorage.getItem('infoFilterJurnal'));
+            const judulLaporan = localStorage.getItem('judulLaporanJurnal'); // Ini adalah string biasa
+
+            // 2. Hapus data dari localStorage
+            localStorage.removeItem('headersCetakJurnal');
+            localStorage.removeItem('dataKeysOrderJurnal');
+            localStorage.removeItem('dataCetakJurnal');
+            localStorage.removeItem('infoFilterJurnal');
+            localStorage.removeItem('judulLaporanJurnal');
+
+            // 3. Set judul dan info filter
+            if (judulLaporan) {
+                document.getElementById('judulLaporan').textContent = judulLaporan;
+                document.title = judulLaporan;
+            }
+            if (infoFilter) {
+                document.getElementById('infoKelas').textContent = infoFilter.kelas || '-';
+                document.getElementById('infoMapel').textContent = infoFilter.mapel || '-';
+                document.getElementById('infoPeriode').textContent = (infoFilter.startDate && infoFilter.endDate) 
+                                                                    ? `${infoFilter.startDate} s/d ${infoFilter.endDate}` : '-';
+                document.getElementById('infoTanggalCetak').textContent = new Date().toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                });
+            }
+
+            const tabelHead = document.querySelector('#tabelCetakJurnal thead');
+            const tabelBody = document.querySelector('#tabelCetakJurnal tbody');
+            tabelHead.innerHTML = '';
+            tabelBody.innerHTML = '';
+
+            // 4. Definisikan struktur kolom yang diinginkan untuk halaman cetak ini
+            //    `text` adalah yang ditampilkan, `key` adalah kunci di objek data.
+            //    Urutan di sini menentukan urutan kolom.
+            const kolomDefinisi = [
+                { text: 'Tanggal', key: 'tanggal', width: '10%' },
+                { text: 'Kelas', key: 'kelas', width: '10%' }, // Jika nama kelas ada di data
+                { text: 'Mapel', key: 'mapel', width: '10%' }, // Jika nama mapel ada di data
+                { text: 'Tujuan Pembelajaran', key: 'tujuan', width: '20%' },
+                { text: 'Materi Pokok', key: 'materi', width: '20%' },
+                { text: 'Refleksi', key: 'refleksi', width: '15%' },
+                { text: 'Tindak Lanjut', key: 'tindakLanjut', width: '15%' }
+            ];
+
+            // 5. Buat header tabel menggunakan `kolomDefinisi.text`
+            const headerRow = tabelHead.insertRow();
+            kolomDefinisi.forEach(colDef => {
+                const th = document.createElement('th');
+                th.textContent = colDef.text;
+                if (colDef.width) th.style.width = colDef.width;
+                headerRow.appendChild(th);
+            });
+            
+            // 6. Isi data tabel menggunakan `kolomDefinisi.key` untuk mengakses data
+            if (dataCetak && dataCetak.length > 0) {
+                dataCetak.forEach((item) => {
+                    const row = tabelBody.insertRow();
+                    kolomDefinisi.forEach(colDef => {
+                        const cell = row.insertCell();
+                        const cellValue = item[colDef.key] !== undefined ? item[colDef.key] : '-';
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.classList.add('pre-wrap');
+                        contentDiv.innerHTML = formatTextContent(cellValue);
+                        cell.appendChild(contentDiv);
+                    });
+                });
+                setTimeout(() => { window.print(); }, 500);
+            } else {
+                const colSpan = kolomDefinisi.length;
+                tabelBody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;">Tidak ada data untuk ditampilkan.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>
