@@ -94,6 +94,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkLoginAndSetup();
             setupMobileMenu();
+            
+            // Debug untuk mobile menu
+            console.log('Mobile menu elements check:');
+            console.log('Trigger:', document.getElementById('mobileMenuTrigger'));
+            console.log('Overlay:', document.getElementById('mobileMenuOverlay'));
+            console.log('Close button:', document.getElementById('closeMobileMenu'));
+            
+            // Event langsung untuk tombol menu
+            const menuTrigger = document.getElementById('mobileMenuTrigger');
+            if (menuTrigger) {
+                menuTrigger.onclick = function(e) {
+                    console.log('Menu onclick triggered');
+                    e.preventDefault();
+                    const overlay = document.getElementById('mobileMenuOverlay');
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        overlay.classList.add('active');
+                    }
+                };
+            }
+            
             loadDashboardData();
 
             function loadDashboardData() {
