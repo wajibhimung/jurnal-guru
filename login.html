@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Aplikasi Guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-page-body">
+    <div class="login-container">
+        <div class="login-form-wrapper">
+            <a href="index.html" class="back-button"><i class="fas fa-arrow-left"></i> Kembali</a>
+            <h2><i class="fas fa-chalkboard-teacher" style="margin-right: 0.5rem; color: #1e88e5;"></i> Login Guru</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope icon-input"></i> Email Anda</label>
+                    <input type="email" id="email" name="email" placeholder="contoh@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock icon-input"></i> Kata Sandi</label>
+                    <input type="password" id="password" name="password" placeholder="Masukkan kata sandi" required>
+                </div>
+                <button type="submit" id="loginButton"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+            </form>
+            <p id="loginMessage" class="mt-2"></p>
+        </div>
+    </div>
+
+    <div id="loading" class="hidden">Memproses...</div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pastikan setup halaman login dilakukan sebelum pengaturan UI lainnya
+            checkLoginAndSetup(); // Untuk menambahkan class login-page-body dan redirect jika sudah login
+
+            const loginForm = document.getElementById('loginForm');
+            const loginMessage = document.getElementById('loginMessage');
+            const loginButton = document.getElementById('loginButton');
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    loginMessage.textContent = "Aplikasi belum dikonfigurasi. Harap hubungi administrator.";
+                    loginMessage.style.color = 'red';
+                    return;
+                }
+                showLoading();
+                loginMessage.textContent = '';
+                loginButton.disabled = true;
+                loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'login');
+                formData.append('email', document.getElementById('email').value);
+                formData.append('password', document.getElementById('password').value);
+
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        localStorage.setItem('guruId', result.guruId);
+                        localStorage.setItem('namaGuru', result.nama);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        loginMessage.textContent = result.message || 'Login gagal. Periksa kembali email dan kata sandi Anda.';
+                        loginMessage.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    loginMessage.textContent = 'Terjadi kesalahan koneksi. Coba lagi nanti.';
+                    loginMessage.style.color = 'red';
+                } finally {
+                    hideLoading();
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

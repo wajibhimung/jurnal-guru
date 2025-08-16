@@ -1,0 +1,882 @@
+/* Styles untuk halaman jurnal */
+.jurnal-list-container { 
+    margin-top: 2rem; 
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.jurnal-list-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+}
+
+.jurnal-list-container h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #eee;
+}
+
+.jurnal-item-card {
+    background-color: #fff;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.jurnal-item-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 35%, rgba(var(--primary-rgb), 0.03) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.jurnal-item-card:hover::after {
+    opacity: 1;
+}
+
+.jurnal-item-card .jurnal-header {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    position: relative;
+}
+
+.jurnal-item-card .jurnal-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.jurnal-item-card.expanded .jurnal-content {
+    max-height: 1000px;
+    transition: max-height 0.5s ease-in;
+}
+
+.jurnal-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.jurnal-item-card h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.jurnal-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.toggle-icon {
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.jurnal-item-card.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.jurnal-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: normal;
+    padding: 0.25rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Quick filters for journal */
+.jurnal-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1.25rem;
+    background: linear-gradient(to bottom, #f8f9fa, #fff);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid #e0e0e0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.filter-group label {
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.filter-group select {
+    flex: 1;
+    min-width: 150px;
+    height: 40px;
+    padding: 0 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+                      linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(50% + 2px),
+                         calc(100% - 15px) calc(50% + 2px);
+    background-size: 5px 5px,
+                    5px 5px;
+    background-repeat: no-repeat;
+    appearance: none;
+}
+
+.filter-group select:hover {
+    border-color: var(--primary-color);
+}
+
+.filter-group select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    outline: none;
+}
+
+.filter-group select option {
+    padding: 8px;
+}
+
+.filter-group select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    outline: none;
+}
+
+/* Search box */
+.jurnal-search {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.jurnal-search input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.jurnal-search input:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.jurnal-search input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.jurnal-search i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.jurnal-search input:focus + i {
+    color: var(--primary-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.jurnal-search::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    transition: width 0.3s ease;
+}
+
+.jurnal-search:focus-within::after {
+    width: 100%;
+}
+
+.jurnal-content-block {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.jurnal-content-block:hover {
+    background-color: #fafafa;
+}
+
+.jurnal-content-block:last-child {
+    border-bottom: none;
+}
+
+.jurnal-content-block::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.jurnal-content-block:hover::before {
+    opacity: 1;
+}
+
+.jurnal-content-block strong {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #eee;
+}
+
+.jurnal-content-block strong i {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.jurnal-content-block p {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin: 0;
+    white-space: pre-wrap;
+    padding-left: 0.5rem;
+    border-left: 2px solid #f0f0f0;
+    transition: border-color 0.2s ease;
+}
+
+.jurnal-content-block:hover p {
+    border-left-color: var(--primary-color);
+}
+
+.jurnal-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1.25rem;
+    border-top: 1px solid #eee;
+    background: linear-gradient(to bottom, #fcfcfc, #f5f5f5);
+    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
+    position: relative;
+}
+
+.jurnal-item-actions::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(255,255,255,0.8), 
+        rgba(255,255,255,0.8), 
+        transparent
+    );
+}
+
+.jurnal-item-actions button {
+    position: relative;
+    overflow: hidden;
+}
+
+.jurnal-item-actions button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 50%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.4s ease-out, opacity 0.3s ease-out;
+}
+
+.jurnal-item-actions button:hover::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.jurnal-item-actions button {
+    min-width: 120px;
+    height: 42px;
+    padding: 0 1.25rem;
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 500;
+}
+
+/* Form Jurnal Styling */
+.jurnal-form-section {
+    display: none;
+    background: linear-gradient(135deg, #fff 0%, #fcfcfc 100%);
+    border-radius: var(--border-radius-md);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    margin: 1.5rem 0;
+    border: 1px solid rgba(0,0,0,0.08);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.jurnal-form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--primary-color), 
+        rgba(var(--primary-rgb), 0.8),
+        var(--primary-color)
+    );
+}
+
+.jurnal-form-section.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    animation: formAppear 0.4s ease-out;
+}
+
+@keyframes formAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.jurnal-form-section h3 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+}
+
+.jurnal-form-section .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.jurnal-form-section label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.jurnal-form-section textarea {
+    min-height: 120px;
+    padding: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    resize: vertical;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    background-color: #fff;
+    color: var(--text-primary);
+}
+
+.jurnal-form-section textarea:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.jurnal-form-section textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.jurnal-form-section input[type="text"],
+.jurnal-form-section input[type="date"],
+.jurnal-form-section select {
+    width: 100%;
+    height: 42px;
+    padding: 0 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    color: var(--text-primary);
+}
+
+.jurnal-form-section input[type="text"]:hover,
+.jurnal-form-section input[type="date"]:hover,
+.jurnal-form-section select:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.jurnal-form-section input[type="text"]:focus,
+.jurnal-form-section input[type="date"]:focus,
+.jurnal-form-section select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.jurnal-form-section .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+    position: relative;
+    padding-top: 1.5rem;
+}
+
+.jurnal-form-section .button-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -2rem;
+    right: -2rem;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(0,0,0,0.1) 15%,
+        rgba(0,0,0,0.1) 85%,
+        transparent
+    );
+}
+
+.jurnal-form-section .button-group button {
+    min-width: 130px;
+    height: 44px;
+    padding: 0 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.jurnal-form-section .button-group button:hover {
+    transform: translateY(-2px);
+}
+
+.jurnal-form-section .button-group button.primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+}
+
+.jurnal-form-section .button-group button.primary:hover {
+    box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.4);
+}
+
+.jurnal-form-section .button-group button.secondary {
+    background: white;
+    color: var(--text-primary);
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.jurnal-form-section .button-group button.secondary:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.jurnal-form-section .button-group button i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.jurnal-form-section .button-group button:hover i {
+    transform: translateX(3px);
+}
+
+/* Button styling khusus untuk jurnal */
+#btnTampilkanFormBuatJurnal {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(30, 136, 229, 0.2);
+}
+
+#btnTampilkanFormBuatJurnal:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .jurnal-list-container,
+    .jurnal-form-section {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .jurnal-filters {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .filter-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-group select {
+        width: 100%;
+    }
+
+    .jurnal-item-card h4 {
+        font-size: 1rem;
+    }
+
+    .jurnal-meta {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .jurnal-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .jurnal-content-block {
+        padding: 0.75rem;
+    }
+
+    .jurnal-item-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1.5rem;
+    }
+
+    .jurnal-item-actions button {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    #btnTampilkanFormBuatJurnal {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .jurnal-form-section .button-group {
+        flex-direction: column;
+    }
+
+    .jurnal-form-section .button-group button {
+        width: 100%;
+    }
+
+    .jurnal-search input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Empty state styling */
+.jurnal-list-container p:only-child {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border-radius: var(--border-radius-sm);
+    border: 2px dashed #e0e0e0;
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    position: relative;
+}
+
+.jurnal-list-container p:only-child::before {
+    content: '📝';
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Loading States */
+#loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(var(--primary-rgb), 0.95);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.3);
+    animation: loadingAppear 0.3s ease-out;
+}
+
+@keyframes loadingAppear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+#loading::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+
+#loading::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50px;
+    background: linear-gradient(45deg, 
+        rgba(255,255,255,0.1),
+        rgba(255,255,255,0.2),
+        rgba(255,255,255,0.1)
+    );
+    filter: blur(4px);
+    opacity: 0;
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* Message Feedback Styling */
+.message-feedback {
+    padding: 1.25rem 1.75rem;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.message-feedback::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.1rem;
+}
+
+.message-feedback.success {
+    background: linear-gradient(135deg, #e6f4ea, #f0fff4);
+    color: #1e7e34;
+    border: 1px solid rgba(30, 126, 52, 0.2);
+}
+
+.message-feedback.success::before {
+    content: '\f00c';
+    background: #1e7e34;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.message-feedback.error {
+    background: linear-gradient(135deg, #f8d7da, #fff1f2);
+    color: #721c24;
+    border: 1px solid rgba(114, 28, 36, 0.2);
+}
+
+.message-feedback.error::before {
+    content: '\f071';
+    background: #721c24;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.message-feedback::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.message-feedback.success::after {
+    background: linear-gradient(to bottom, #1e7e34, rgba(30, 126, 52, 0.6));
+}
+
+.message-feedback.error::after {
+    background: linear-gradient(to bottom, #721c24, rgba(114, 28, 36, 0.6));
+}
+
+.message-feedback.hidden {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

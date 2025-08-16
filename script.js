@@ -44,66 +44,85 @@ function checkLoginAndSetup() {
     const guruId = localStorage.getItem('guruId');
     const namaGuru = localStorage.getItem('namaGuru');
     const currentPath = window.location.pathname.split("/").pop() || 'index.html';
+    const isLoginPage = currentPath === 'login.html' || currentPath === 'index.html';
 
     // Tambahkan kelas khusus ke body jika ini halaman login
-    if (currentPath === 'login.html' || currentPath === 'index.html') {
+    if (isLoginPage) {
         document.body.classList.add('login-page-body');
+        // Pastikan body tidak mengikuti layout grid untuk halaman login
+        document.body.style.display = 'flex';
+        document.body.style.flexDirection = 'column';
+        document.body.style.padding = '0';
+        document.body.style.margin = '0';
     } else {
         document.body.classList.remove('login-page-body');
+        document.body.style.display = '';
+        document.body.style.flexDirection = '';
+        document.body.style.padding = '';
+        document.body.style.margin = '';
+        
+        // Setup device UI hanya jika bukan halaman login
+        setupDeviceUI(); 
     }
-    
-    setupDeviceUI(); // Panggil setup UI berdasarkan device
 
-    if (!guruId && currentPath !== 'login.html' && currentPath !== 'index.html') {
-        window.location.href = 'login.html';
+    // Redirect ke halaman login jika belum login dan bukan di halaman login
+    if (!guruId && !isLoginPage) {
+        window.location.href = 'index.html';
         return;
     }
 
-    if (guruId && (currentPath === 'login.html' || currentPath === 'index.html')) {
+    // Redirect ke dashboard jika sudah login tapi masih di halaman login
+    if (guruId && isLoginPage) {
         window.location.href = 'dashboard.html';
         return;
     }
 
+    // Setup welcome message jika element ada
     const welcomeMsg = document.getElementById('welcomeMessage');
     if (welcomeMsg && namaGuru) {
         welcomeMsg.textContent = `Halo, ${namaGuru}!`;
     }
 
-    const handleLogout = (e) => {
-        e.preventDefault();
-        localStorage.removeItem('guruId');
-        localStorage.removeItem('namaGuru');
-        window.location.href = 'login.html';
-    };
+    // Hanya setup logout & navigation jika ini bukan halaman login
+    if (!isLoginPage) {
+        // Setup logout handler
+        const handleLogout = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('guruId');
+            localStorage.removeItem('namaGuru');
+            window.location.href = 'index.html';
+        };
 
-    const logoutButtonDesktop = document.getElementById('logoutButtonDesktop');
-    if (logoutButtonDesktop) logoutButtonDesktop.addEventListener('click', handleLogout);
+        const logoutButtonDesktop = document.getElementById('logoutButtonDesktop');
+        if (logoutButtonDesktop) logoutButtonDesktop.addEventListener('click', handleLogout);
 
-    const logoutButtonMobile = document.getElementById('logoutButtonMobile');
-    if (logoutButtonMobile) logoutButtonMobile.addEventListener('click', handleLogout);
+        const logoutButtonMobile = document.getElementById('logoutButtonMobile');
+        if (logoutButtonMobile) logoutButtonMobile.addEventListener('click', handleLogout);
 
-    const currentFilename = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+        // Setup active navigation
+        const currentFilename = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
 
-    const desktopNavLinks = document.querySelectorAll('.desktop-nav a');
-    desktopNavLinks.forEach(link => {
-        if (link.getAttribute('href') === currentFilename) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-
-    const mobileBottomNavLinks = document.querySelectorAll('.mobile-bottom-nav a.nav-item');
-    mobileBottomNavLinks.forEach(link => {
-        const pageName = currentFilename.replace('.html', '');
-        if (link.dataset.page === pageName || link.getAttribute('href') === currentFilename) {
-            if (link.id !== 'mobileMenuTrigger') { // Jangan set active pada menu trigger
-                 link.classList.add('active');
+        const desktopNavLinks = document.querySelectorAll('.desktop-nav a');
+        desktopNavLinks.forEach(link => {
+            if (link.getAttribute('href') === currentFilename) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
             }
-        } else {
-            link.classList.remove('active');
-        }
-    });
+        });
+
+        const mobileBottomNavLinks = document.querySelectorAll('.mobile-bottom-nav a.nav-item');
+        mobileBottomNavLinks.forEach(link => {
+            const pageName = currentFilename.replace('.html', '');
+            if (link.dataset.page === pageName || link.getAttribute('href') === currentFilename) {
+                if (link.id !== 'mobileMenuTrigger') { // Jangan set active pada menu trigger
+                    link.classList.add('active');
+                }
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
 }
 
 // Fungsi untuk setup menu mobile
@@ -112,19 +131,31 @@ function setupMobileMenu() {
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
     const closeMenuButton = document.getElementById('closeMobileMenu');
 
+    console.log('Setup mobile menu:', {menuTrigger, mobileMenuOverlay, closeMenuButton});
+
     if (menuTrigger && mobileMenuOverlay && closeMenuButton) {
         menuTrigger.addEventListener('click', (e) => {
+            console.log('Menu trigger clicked');
             e.preventDefault();
             mobileMenuOverlay.classList.remove('hidden');
+            mobileMenuOverlay.classList.add('active'); // Tambahkan kelas active untuk animasi
         });
 
         closeMenuButton.addEventListener('click', () => {
-            mobileMenuOverlay.classList.add('hidden');
+            mobileMenuOverlay.classList.remove('active'); // Hapus kelas active untuk animasi
+            // Tunggu animasi selesai baru tambahkan hidden
+            setTimeout(() => {
+                mobileMenuOverlay.classList.add('hidden');
+            }, 300); // 300ms sesuai dengan durasi transisi di CSS
         });
 
         mobileMenuOverlay.addEventListener('click', (e) => {
             if (e.target === mobileMenuOverlay) {
-                mobileMenuOverlay.classList.add('hidden');
+                mobileMenuOverlay.classList.remove('active'); // Hapus kelas active untuk animasi
+                // Tunggu animasi selesai baru tambahkan hidden
+                setTimeout(() => {
+                    mobileMenuOverlay.classList.add('hidden');
+                }, 300); // 300ms sesuai dengan durasi transisi di CSS
             }
         });
     }
